@@ -1,0 +1,744 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LLM 角色扮演測試台</title><style>
+:root{font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif;color:#e8eaf3;background:#10131d}*{box-sizing:border-box}body{margin:0}button,input,textarea,select{font:inherit}button{cursor:pointer;background:#343e65;color:white;border:1px solid #59648a;border-radius:8px;padding:8px 11px}button:hover{background:#465582}button:disabled{opacity:.45}input,textarea,select{background:#181e30;color:#f0f2fc;border:1px solid #404c6a;border-radius:7px;padding:8px;width:100%}textarea{resize:vertical}label{display:block;font-size:12px;color:#b9c5df;margin:10px 0 4px}.app{display:grid;grid-template-columns:310px minmax(300px,1fr) 290px;height:100dvh}.side{padding:16px;overflow:auto;background:#171c2a;border-right:1px solid #31394f}.right{border-left:1px solid #31394f;border-right:0}.main{display:flex;flex-direction:column;min-height:0}.top{padding:12px 16px;border-bottom:1px solid #303950;display:flex;gap:12px;align-items:center}.avatar{width:45px;height:45px;border-radius:50%;object-fit:cover;background:#333e5e}.chat{overflow:auto;flex:1;padding:20px;display:flex;flex-direction:column;gap:12px}.msg{max-width:88%;border-radius:14px;padding:12px 15px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6;background:#242c41;align-self:flex-start}.msg.user{background:#30446e;align-self:flex-end}.meta{font-size:11px;color:#aab9d5;margin-bottom:5px}.composer{padding:14px;border-top:1px solid #303950}.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}h2{font-size:17px;margin:0 0 14px}h3{font-size:14px;margin:18px 0 8px;color:#d4dcf5}small,.hint{color:#9cabc9;font-size:12px}details{border-bottom:1px solid #30394f;padding:8px 0}summary{cursor:pointer;font-weight:650}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;background:#101522;padding:12px;border-radius:8px;max-height:300px;overflow:auto}.pill{font-size:12px;background:#28344f;border-radius:20px;padding:4px 9px}.status{font-size:12px;color:#a9c7f6}.entry{font-size:12px;border-bottom:1px solid #333d53;padding:8px 0}.row{display:flex;gap:7px;align-items:center}.row>*{min-width:0}.row input[type=checkbox]{width:auto}.mobileTabs{display:none}.hidden{display:none!important}@media(max-width:900px){.app{display:flex;flex-direction:column}.mobileTabs{display:flex;gap:5px;padding:8px;background:#171c2a}.side{display:none;flex:1;min-height:0}.side.active{display:block}.main{display:none;flex:1;min-height:0}.main.active{display:flex}}
+.sectionNav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:10px 0 16px}.sectionNav button{padding:9px 4px}.side details{scroll-margin-top:12px}
+:root{font-family:Inter,ui-sans-serif,system-ui,'Noto Sans TC',sans-serif;color:#e9edf8;background:#0c101a}
+.side{background:#121827;padding:22px 18px}.right{background:#111725}.app{grid-template-columns:340px minmax(320px,1fr) 300px}
+.sectionNav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:5px;background:#0c1220;border:1px solid #293449;border-radius:13px;margin:18px 0 22px}
+.sectionNav button{background:transparent;border:0;color:#98a7c1;border-radius:9px;padding:12px 0;font-size:13px;font-weight:650;transition:background .15s,color .15s}
+.sectionNav button.selected{background:#5369ac;color:#fff;box-shadow:0 3px 12px #0004}
+#left > details{display:none;border:0;background:transparent;padding:0;margin:0}
+#left > details.selectedPanel{display:block}
+#left > details > summary{list-style:none;pointer-events:none;font-size:20px;font-weight:750;margin:0 0 17px;color:#f5f7ff}
+#left > details > summary::-webkit-details-marker{display:none}
+#left > details:not(.selectedPanel){display:none!important}
+#left input,#left select,#left textarea{background:#0e1421;border-color:#303d56;padding:11px;border-radius:10px}
+#left label{font-size:12px;font-weight:650;margin-top:16px;color:#b5c2d8}
+#left .hint{line-height:1.6}button{transition:background .15s}
+@media(max-width:760px){.app{grid-template-columns:1fr}.side{padding:16px}.sectionNav button{font-size:12px}}
+
+/* Refined editorial interface */
+:root{color:#e7eaf2;background:#0b0e15;font-family:ui-sans-serif,system-ui,'Noto Sans TC',sans-serif}
+body{background:#0b0e15} .app{grid-template-columns:300px minmax(360px,1fr) 280px}
+.side{background:#10141e;border-color:#262c3a;padding:24px 19px}.right{background:#10141e}
+.sideTitle{font-size:19px;letter-spacing:.02em;margin-bottom:25px}.sideTitle span{display:block;font-size:10px;letter-spacing:.18em;font-weight:500;color:#758097;margin-top:6px}
+.sectionNav{grid-template-columns:repeat(3,minmax(0,1fr));background:#1a202d;border:1px solid #2b3343;border-radius:12px;gap:4px;padding:4px;margin:0 0 26px}
+.sectionNav button{font-size:13px;padding:12px 3px;color:#a5afc2}.sectionNav button.selected{background:#e3e9f6;color:#172033;box-shadow:0 2px 8px #0003}
+#left>details>summary{font-size:16px;font-weight:650;margin-bottom:18px}
+#left input,#left select,#left textarea,.characterPanel input,.characterPanel select{background:#171d29;border:1px solid #30394b;border-radius:9px;color:#e7eaf2;padding:11px}
+button{background:#242c3c;border:1px solid #374256;border-radius:9px}button:hover{background:#35415a}
+.top{padding:17px 23px;border-color:#252c3b;background:#111621;gap:15px}.main{background:#0c1018;position:relative}.chat{padding:28px clamp(16px,4vw,60px)}.msg{background:#1c2533;border:1px solid #2b3545;border-radius:15px;max-width:82%}.msg.user{background:#273c59;border-color:#3b5374}.composer{background:#111621;border-color:#252c3b;padding:16px 24px}.composer textarea{background:#191f2b;border-color:#344053;border-radius:12px;padding:13px}
+.characterTrigger{display:flex;align-items:center;gap:13px;background:transparent;border:0;padding:3px 6px 3px 0;text-align:left;min-width:0}.characterTrigger:hover{background:transparent}.characterTrigger strong{font-size:17px}.characterTrigger .hint{margin-top:5px}.characterTrigger .chevron{font-size:19px;color:#91a0ba;padding-left:10px}.avatar{width:49px;height:49px;border-radius:13px}.pill{margin-left:auto;white-space:nowrap;background:#242e40;color:#b9c7e0}
+.characterPanel{position:absolute;z-index:20;top:86px;left:22px;width:min(370px,calc(100% - 44px));max-height:min(75vh,680px);overflow:auto;background:#171e2b;border:1px solid #3c4960;border-radius:16px;padding:20px;box-shadow:0 18px 55px #0009}.characterPanel label{margin-top:15px}.characterPanel .panelHeading{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}.characterPanel .panelHeading strong{font-size:17px}.characterPanel .panelHeading button{padding:5px 10px}.characterPanel .hint{margin-top:10px}
+#left>.compatPanel{display:block!important;margin-top:22px;padding-top:15px;border-top:1px solid #30394f}#left>.compatPanel>summary{pointer-events:auto;font-size:12px;color:#8797b3;font-weight:500}
+@media(max-width:900px){.app{display:flex;flex-direction:column}.mobileTabs{background:#111621}.side{flex:1}.characterPanel{top:76px}}
+
+/* v1.2: distinct navigation pages, restrained light workspace */
+:root{color:#222c3d;background:#f4f6fa;font-family:system-ui,-apple-system,'Noto Sans TC',sans-serif}
+body{background:#f4f6fa}
+.app{grid-template-columns:320px minmax(380px,1fr) 285px}
+.side,.right{background:#fff;border-color:#e5e9f0;color:#263144}
+.side{padding:26px 20px}
+.sideTitle{color:#19263a;font-size:20px;margin-bottom:23px}
+.sideTitle span{color:#8b96a7}
+.sectionNav{display:flex;flex-direction:column;gap:7px;padding:0;background:transparent;border:0;border-radius:0;margin:0 0 28px}
+.sectionNav button{width:100%;display:flex;align-items:center;text-align:left;padding:13px 16px;border-radius:11px;border:1px solid transparent;background:transparent;color:#647084;font-size:15px}
+.sectionNav button:hover{background:#f1f5fa;color:#26364f}
+.sectionNav button.selected{background:#eaf1ff;border:1px solid #cbdcfb;color:#2456a6;box-shadow:none}
+.sectionNav button.selected::before{content:'';width:4px;height:18px;border-radius:3px;background:#3f76d5;margin-right:12px}
+.sectionNav button:not(.selected)::before{content:'';width:4px;height:18px;margin-right:12px}
+#left>details{display:none!important}
+#left>details.selectedPanel{display:block!important;border-top:1px solid #e6eaf1;padding-top:24px}
+#left>details>summary{color:#202c40;font-size:18px}
+#left input,#left select,#left textarea,.characterPanel input,.characterPanel select{background:#fff;border:1px solid #d8e0eb;color:#263144}
+#left label{color:#647084}
+#left .hint,small,.hint{color:#7b8798}
+#left>.compatPanel{display:block!important;border-color:#e6eaf1}
+#left>.compatPanel>summary{color:#738197}
+.main{background:#f7f9fc}
+.top,.composer{background:#fff;border-color:#e5e9f0}
+.top{padding:18px 25px}
+.characterTrigger strong{color:#25344a}
+.avatar{background:#e7edf5}
+.pill{background:#edf2f9;color:#5b6d84}
+.chat{background:#f7f9fc}
+.msg{background:#fff;color:#283549;border:1px solid #e3e8ef;box-shadow:0 2px 10px #17243a08}
+.msg.user{background:#e7f0ff;border-color:#cddff9}
+.meta{color:#77869b}
+button{background:#fff;color:#31435e;border:1px solid #d5dfeb}
+button:hover{background:#eff5ff}
+#send,#importCharacterBtn{background:#346bc2;color:#fff;border-color:#346bc2}
+#send:hover,#importCharacterBtn:hover{background:#2558a8}
+.composer textarea{background:#fff;color:#27374d;border:1px solid #d7e0eb}
+.characterPanel{background:#fff;color:#263144;border-color:#d8e1ed;box-shadow:0 16px 45px #1a2b4930}
+pre{background:#f4f6fa;color:#304057}
+h2,h3{color:#26364b}
+.status{color:#3569b1}
+.mobileTabs{background:#fff}
+@media(max-width:900px){.app{display:flex;flex-direction:column}.side{padding:20px}.sectionNav{flex-direction:row}.sectionNav button{justify-content:center}.sectionNav button::before{display:none}.sectionNav button.selected::before{display:none}}
+
+/* Five independent, full-width top-level pages */
+body{background:#f6f7fb;color:#253149}
+.mobileTabs{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;gap:8px;padding:12px max(20px,calc((100vw - 1100px)/2));height:76px;background:#fff;border-bottom:1px solid #e5e9f1;box-shadow:0 1px 6px #1c294008}
+.mobileTabs button{border:0;border-radius:10px;background:transparent;color:#718096;font-size:15px;font-weight:600;letter-spacing:.02em}
+.mobileTabs button:hover{background:#f2f5fa;color:#314766}
+.mobileTabs button.current{background:#edf3ff;color:#275caa;box-shadow:inset 0 -3px #427bdb}
+.app{height:calc(100dvh - 76px);display:block;max-width:1100px;margin:auto;position:relative}
+.app>.side,.app>.main{display:none!important;height:100%;width:100%;border:0}
+.app>.side.active{display:block!important;background:#f6f7fb;overflow:auto;padding:40px max(24px,calc((100% - 720px)/2))}
+.app>.main.active{display:flex!important;background:#fff;border-left:1px solid #e8ecf2;border-right:1px solid #e8ecf2}
+.sideTitle{font-size:26px;margin:0 0 26px}
+.sideTitle span{display:block;font-size:11px;letter-spacing:.14em;margin-top:7px}
+.sectionNav{display:none!important}
+#left>details.selectedPanel{display:block!important;background:#fff;border:1px solid #e4eaf2;border-radius:18px;padding:30px;box-shadow:0 8px 30px #263a5c0b}
+#left>details.selectedPanel summary{list-style:none;font-size:20px;margin-bottom:22px;pointer-events:none}
+#left>details.selectedPanel summary::-webkit-details-marker{display:none}
+#left>details.compatPanel{display:block!important;background:transparent;border:0;padding:18px 2px}
+#left>details.compatPanel summary{font-size:13px;pointer-events:auto}
+#left input,#left select,#left textarea{padding:12px;border-radius:10px}
+#left label{font-size:13px;margin-top:18px;margin-bottom:8px}
+#left .actions{margin-top:20px}
+#left button{padding:11px 17px;border-radius:10px}
+.top{padding:18px 30px;min-height:86px}
+.chat{padding:30px clamp(20px,7vw,110px);background:#fafbfe}
+.composer{padding:20px clamp(20px,7vw,110px)}
+#right.active{padding:40px max(24px,calc((100% - 760px)/2))}
+#right.active h2{font-size:26px}
+#right.active pre{max-height:260px}
+#right.active .entry{border-color:#e5e9f1}
+@media(max-width:650px){.mobileTabs{height:64px;gap:2px;padding:8px}.mobileTabs button{font-size:13px;padding:8px 2px}.app{height:calc(100dvh - 64px)}.app>.side.active{padding:22px 14px}#left>details.selectedPanel{padding:22px 18px}.top{padding:12px 14px}.chat{padding:18px 12px}.composer{padding:12px}#right.active{padding:22px 16px}}
+
+/* Soft charcoal theme: low glare, five independent tabs preserved */
+:root{color:#dce2ec;background:#171b24;color-scheme:dark}
+body{background:#171b24;color:#dce2ec}
+.mobileTabs{background:#202632;border-color:#323b49;box-shadow:none}
+.mobileTabs button{color:#aeb9ca;background:transparent}
+.mobileTabs button:hover{background:#303949;color:#e8edf6}
+.mobileTabs button.current{background:#39475d;color:#f2f5fa;box-shadow:inset 0 -2px #92a8c9}
+.app>.side.active{background:#171b24;color:#dce2ec}
+.app>.main.active{background:#1b202b;border-color:#323a48}
+.sideTitle,h2,h3,.characterTrigger strong{color:#e5eaf2}
+.sideTitle span,.hint,small,.meta{color:#9aa9bd}
+#left>details.selectedPanel{background:#242b38;border-color:#364152;box-shadow:none}
+#left>details.selectedPanel summary{color:#e4eaf3}
+#left>details.compatPanel{background:transparent}
+#left input,#left select,#left textarea,.characterPanel input,.characterPanel select{background:#1b222e;border-color:#414d60;color:#e5eaf3}
+#left label{color:#b6c3d5}
+.top,.composer{background:#242b38;border-color:#394455}
+.chat{background:#1b202b}
+.msg{background:#2a3443;border-color:#3b4758;color:#e9edf4;box-shadow:none}
+.msg.user{background:#354860;border-color:#4b607a;color:#f1f4fa}
+.composer textarea{background:#1b222e;border-color:#465369;color:#e6ebf4}
+button{background:#354155;color:#e7edf6;border-color:#526077}
+button:hover{background:#43536c}
+#send,#importCharacterBtn{background:#526d93;border-color:#6985ac;color:#fff}
+#send:hover,#importCharacterBtn:hover{background:#6481a9}
+.pill,.avatar{background:#343f50;color:#cad5e5}
+.characterPanel{background:#283242;color:#e8edf5;border-color:#48566a;box-shadow:0 18px 45px #090d1590}
+#right.active{background:#202632;color:#e2e9f3}
+#right.active h2,#right.active h3{color:#e5eaf2}
+#right.active .entry{border-color:#394556}
+pre{background:#171d27;color:#d2dbea;border:1px solid #354153}
+.status{color:#a9c5e9}
+ .promptBlock{background:#252f40;border:1px solid #455268;border-radius:12px;margin:10px 0;padding:12px}.promptBlock summary{cursor:pointer;font-size:14px}.promptBlock textarea,#regexScripts textarea{width:100%;box-sizing:border-box;margin-top:10px}.promptBlock .actions{margin-top:8px}#regexScripts details{border:1px solid #455268;border-radius:10px;padding:10px;margin:8px 0} .promptBlock{padding:0!important;margin:5px 0!important;border-radius:8px!important;background:#222b39!important}.promptBlock summary{min-height:34px;display:flex;align-items:center;gap:7px;padding:5px 9px;font-size:12px!important;line-height:1.3}.promptBlock summary input{width:15px;height:15px;flex:none;margin:0}.promptBlock summary span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.promptBlock>small{display:block;padding:4px 9px;font-size:10px}.promptBlock textarea{margin:5px 8px;width:calc(100% - 16px);min-height:70px;font-size:12px}.promptBlock .actions{margin:4px 8px 8px!important}.promptBlock .actions button{padding:3px 9px;font-size:12px}#promptBlocks{margin-top:8px}#systemPrompt{display:none!important}.messageTools{display:none;justify-content:flex-end;gap:5px;margin-top:5px;opacity:.72}.messageTools button,.messageEditActions button{font-size:11px;padding:3px 8px;border-radius:6px;background:transparent;border:1px solid #617083;color:inherit}.messageTools.visible{display:flex}.messageTools button:hover,.messageEditActions button:hover{background:#445369}.messageEditActions{display:flex;gap:6px;margin-top:6px}.msg textarea{width:100%;min-width:min(65vw,320px);font-size:13px;line-height:1.6} .msg{white-space:normal}.msg>div:nth-child(2){white-space:pre-wrap}.msg:has(iframe){width:100%;max-width:100%;align-self:stretch}.msg iframe{display:block} .presetParams{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;margin:10px 0}.presetParams label{margin:3px 0 0;font-size:12px}.presetParams input{width:100%;box-sizing:border-box}.blockTitle{display:flex;align-items:center;justify-content:space-between;gap:8px}.blockTitle h3{margin:10px 0 5px}.blockTitle #tokenStats{font-size:11px;color:#aebfd2;white-space:nowrap}  .greetingNav{display:flex;justify-content:center;align-items:center;gap:12px;margin-top:10px;font-size:12px;color:#b9c8dc}.greetingNav button{padding:2px 12px;font-size:20px;line-height:1.2;background:#334258;border:1px solid #52647d;border-radius:7px;color:#fff} .characterPanel #applyGreeting{background:#526d93;color:#fff;border-color:#6985ac}.characterPanel #greetingPreview{background:#1b222e;padding:10px;border-radius:8px}.parameterControl{display:flex;flex-direction:column;gap:5px;padding:3px 0 6px}.presetParams .parameterControl input[type=number]{width:100%;max-width:150px}.presetParams .parameterControl input[type=range]{width:100%;accent-color:#91a9c6;cursor:pointer}.presetParams{align-items:start} #charFile{position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0}.regexTabs{display:flex;gap:6px;margin:8px 0}.regexTabs button{flex:1;background:#303b4d;color:#cbd4e2;border:1px solid #526077;border-radius:8px;padding:8px}.regexTabs button.selected{background:#526d93;color:white}.messageTools.visible{display:flex}</style><style>
+/* Compact, single-button mobile composer */
+.composer{padding:8px 12px!important}.composeRow{display:flex;align-items:flex-end;gap:8px}.composeRow textarea{flex:1;min-width:0;min-height:43px;max-height:140px;padding:10px 12px!important;line-height:1.4;border-radius:12px!important}.composeRow .composeAction{flex:none;width:44px;height:44px;border-radius:12px;font-size:23px;line-height:1;padding:0;background:#526d93;color:#fff}.composeAction[hidden]{display:none!important}.composer .status{font-size:11px;min-height:0;margin-top:2px}.composer .status:empty{display:none}.top{gap:8px!important}.characterTrigger{flex:1;min-width:0}.characterTrigger>div{min-width:0;flex:1}.characterTrigger strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;word-break:normal}.top #importCharacterBtn{flex:none}.msg textarea{max-width:100%}
+</style><style>
+.promptBlock summary{display:flex!important;align-items:center;gap:8px}.promptBlock summary .blockName{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.blockSwitch{position:relative;display:inline-flex;width:38px;height:22px;flex:none}.blockSwitch input{opacity:0;position:absolute;width:100%;height:100%;z-index:1;margin:0}.blockSwitch i{width:38px;height:22px;border-radius:15px;background:#526075;transition:.2s}.blockSwitch i:before{content:'';position:absolute;top:3px;left:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s}.blockSwitch input:checked+i{background:#6d92c5}.blockSwitch input:checked+i:before{transform:translateX(16px)}.presetAuto{display:flex;align-items:center;gap:9px;margin:14px 0 6px;font-size:13px;color:#dce7f5}.presetAuto input{width:17px;height:17px;accent-color:#8bb0e2;margin:0}.blockAuto{display:flex;align-items:center;gap:6px;font-size:11px;color:#b6c7dc;padding:0 10px 6px}.blockAuto input{accent-color:#8bb0e2}.rp-story{white-space:pre-wrap;line-height:1.8}.rp-tag{font-size:12px;color:#a8bad1;margin:8px 0}.rp-thinking{border:1px solid #48556a;border-radius:8px;margin:8px 0;padding:7px}.rp-thinking summary{cursor:pointer;color:#aebed2}
+.loreEntries{margin-top:10px;max-height:55vh;overflow:auto}.loreEntry{border:1px solid var(--border,#555);border-radius:7px;padding:9px;margin:6px 0}.loreEntry summary{cursor:pointer;overflow-wrap:anywhere}.loreContent{white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto;font-size:12px}
+.loreEntry summary{display:flex;align-items:center;gap:9px;line-height:1.5}
+.loreStatusDot{display:inline-block;flex:none;width:11px;height:11px;border-radius:50%;border:1px solid rgba(255,255,255,.18)}
+.loreStatusDot.always{background:#48a6ff;box-shadow:0 0 0 2px rgba(72,166,255,.12)}
+.loreStatusDot.keyword{background:#29cf78;box-shadow:0 0 0 2px rgba(41,207,120,.12)}
+.loreStatusDot.off{background:#747d8e;opacity:.65}
+.loreStatusText{margin-left:auto;flex:none;font-size:11px;font-weight:600;border-radius:5px;padding:2px 6px}
+.loreStatusText.always{color:#80c3ff;background:rgba(72,166,255,.12)}
+.loreStatusText.keyword{color:#56e49b;background:rgba(41,207,120,.12)}
+.loreStatusText.off{color:#a5adba;background:rgba(145,154,170,.1)}
+.loreEntryName{min-width:0;overflow-wrap:anywhere}
+.loreLegend{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0 5px;font-size:12px;color:var(--muted,#abb3c2)}
+.loreLegend span{display:inline-flex;align-items:center;gap:5px}
+
+/* 世界書條目檢視器：不依賴巢狀 details 展開 */
+.loreEntry summary{list-style:none}.loreEntry summary::-webkit-details-marker{display:none}
+.loreEntry{cursor:pointer}.loreEntry:focus-visible{outline:2px solid #7ca7ff}
+.loreViewer{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.68);display:flex;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
+.loreViewer[hidden]{display:none!important}
+.loreViewerCard{width:min(680px,100%);max-height:min(85dvh,850px);display:flex;flex-direction:column;background:var(--panel,#20232b);color:var(--text,#f5f5f5);border:1px solid var(--border,#777);border-radius:12px;overflow:hidden}
+.loreViewerHead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-bottom:1px solid var(--border,#777)}
+.loreViewerHead strong{overflow-wrap:anywhere}.loreViewerHead button{flex-shrink:0;min-width:38px;min-height:38px}
+.loreViewerMeta{padding:12px 14px;font-size:13px;overflow-wrap:anywhere;white-space:pre-wrap}
+.loreViewerBody{padding:14px;overflow:auto;min-height:80px;flex:1;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.7 ui-monospace,monospace;user-select:text;-webkit-user-select:text}
+ .addPromptBlock{display:block;width:100%;margin:8px 0 3px;padding:9px;border:1px dashed #71839b;border-radius:9px;background:#28364a;color:#dce9fa;font-size:20px;cursor:pointer}.addPromptBlock:active{background:#405572}</style><style>
+#promptBlocks .promptBlock,#regexScripts details{border:1px solid #455268!important;border-radius:12px!important;background:#252f40!important;margin:9px 0!important;padding:0!important;overflow:hidden}
+#promptBlocks .promptBlock summary,#regexScripts details summary{display:flex;align-items:center;min-height:51px;padding:12px 14px!important;font-size:14px!important;cursor:pointer;user-select:none;list-style:none}
+#promptBlocks .promptBlock summary .blockName{font-size:14px;white-space:normal;overflow-wrap:anywhere}
+#promptBlocks .promptBlock[open],#regexScripts details[open]{border-color:#8198b8!important}
+#promptBlocks .promptBlock>textarea,#regexScripts details>textarea{min-height:130px!important;font-size:13px!important;line-height:1.6;padding:12px!important;width:calc(100% - 24px)!important;margin:8px 12px!important;box-sizing:border-box}
+#regexScripts details>textarea{display:block}
+#promptBlocks .promptBlock>small{font-size:12px;padding:7px 14px}
+#promptBlocks .promptBlock>.actions{margin:10px 12px 14px!important}
+.blockFooter{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 6px}
+.blockFooter .addPromptBlock{display:inline-flex!important;align-items:center;justify-content:center;width:38px!important;min-width:38px;height:36px;margin:0!important;padding:0!important;font-size:22px!important}
+.blockFooter #tokenStats{flex:1;text-align:right;font-size:11px;line-height:1.5;color:#b9c8db;white-space:normal}
+.autoParseSettings{border-top:1px solid #455268;margin-top:14px;padding-top:12px}
+.autoParseSettings .presetAuto{display:inline-flex!important;gap:9px!important;align-items:center!important;margin:4px 0 8px!important}
+.autoParseSettings .presetAuto input{width:17px!important;height:17px!important;margin:0!important}
+.autoParseSettings #autoParseFields[hidden]{display:none!important}
+.autoParseSettings #autoParseFields textarea{width:100%;box-sizing:border-box;min-height:70px;margin:5px 0 10px}
+.autoParseSettings #autoParseFields label{display:block;font-size:13px}
+</style><style>
+/* Worldbook-density compact rows: collapsed cards should never reserve editor space. */
+#promptBlocks details.promptBlock,#regexScripts details{
+ display:block!important;min-height:0!important;height:auto!important;
+ padding:0!important;margin:6px 0!important;border-radius:7px!important;
+ background:#252f40!important;border:1px solid #455268!important;
+ overflow:hidden!important;
+}
+#promptBlocks details.promptBlock:not([open]) > :not(summary),
+#regexScripts details:not([open]) > :not(summary){display:none!important}
+#promptBlocks details.promptBlock>summary,#regexScripts details>summary{
+ box-sizing:border-box!important;display:flex!important;align-items:center!important;
+ min-height:0!important;height:auto!important;padding:9px 11px!important;
+ margin:0!important;gap:8px!important;font-size:13px!important;line-height:1.35!important;
+ cursor:pointer!important;
+}
+#promptBlocks details.promptBlock>summary .blockName{
+ flex:1!important;min-width:0!important;white-space:nowrap!important;
+ overflow:hidden!important;text-overflow:ellipsis!important;font-size:13px!important;
+}
+#regexScripts details>summary{overflow-wrap:anywhere!important}
+#regexScripts details>summary input{flex:none!important;width:16px!important;height:16px!important;margin:0!important}
+#promptBlocks details.promptBlock>input,#promptBlocks details.promptBlock>textarea,
+#regexScripts details>textarea{display:block;box-sizing:border-box;width:calc(100% - 22px)!important;margin:8px 11px!important}
+#promptBlocks details.promptBlock>textarea,#regexScripts details>textarea{min-height:105px!important}
+#promptBlocks details.promptBlock>small{display:block;padding:3px 11px!important}
+#promptBlocks details.promptBlock>.actions{margin:8px 11px 12px!important}
+.blockTitle{display:flex!important;align-items:center!important;gap:8px!important;margin:12px 0 6px!important}
+.blockTitle h3{margin:0!important;flex:none;font-size:15px!important}
+.blockTitle #tokenStats{flex:1;min-width:0;text-align:right;font-size:11px!important;line-height:1.35;color:#b9c8db;white-space:normal!important;overflow-wrap:anywhere}
+.blockFooter{margin:8px 0!important}
+.blockFooter .addPromptBlock{height:32px!important;width:36px!important;min-width:36px!important}
+</style><style>
+#promptBlocks details.promptBlock{height:auto!important;min-height:0!important;overflow:visible!important}
+#promptBlocks details.promptBlock>summary{display:flex!important;align-items:center!important;gap:9px!important;min-height:42px!important;padding:9px 11px!important;cursor:pointer!important;list-style:none!important}
+#promptBlocks details.promptBlock>summary::-webkit-details-marker{display:none}
+#promptBlocks details.promptBlock>summary .blockMarker{flex:none;width:21px;text-align:center;font-size:15px}
+#promptBlocks details.promptBlock>summary .blockName{flex:1!important;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#promptBlocks details.promptBlock>summary .blockChevron{flex:none;font-size:18px;color:#aebdd2;transition:transform .15s}
+#promptBlocks details.promptBlock[open]>summary .blockChevron{transform:rotate(180deg)}
+#promptBlocks details.promptBlock:not([open])>.blockEditor{display:none!important}
+#promptBlocks details.promptBlock[open]>.blockEditor{display:block!important;padding:8px 12px 12px!important}
+#promptBlocks .blockEditor label{display:block!important;font-size:13px!important;margin:8px 0 5px!important}
+#promptBlocks .blockEditor input[type=text],#promptBlocks .blockEditor textarea{display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;margin:0 0 10px!important;padding:10px!important;font-size:14px!important;line-height:1.5!important;color:inherit!important;background:#1b2433!important;border:1px solid #53637b!important;border-radius:8px!important}
+#promptBlocks .blockEditor textarea{min-height:145px!important;resize:vertical}
+#promptBlocks .blockEditor .blockMeta{display:block!important;color:#aebdd2!important;overflow-wrap:anywhere}
+#promptBlocks .blockEditor .pinHint{font-size:13px;line-height:1.6;color:#b7c7dc;margin:4px 0 12px}
+#promptBlocks .blockEditor .actions{display:flex;gap:8px;margin-top:9px}
+#promptBlocks .blockEditor .actions button{min-width:40px}
+</style><style>
+.blockTitle{display:flex!important;align-items:center!important;gap:9px!important}
+.blockTitle h3{margin-right:0!important;flex:none}
+.blockTitle #addPromptBlock{display:inline-flex!important;align-items:center;justify-content:center;flex:none;width:27px!important;min-width:27px!important;height:27px!important;min-height:27px!important;padding:0!important;margin:0!important;border-radius:7px!important;font-size:20px!important;line-height:1!important}
+.blockTitle #tokenStats{margin-left:auto!important;text-align:right!important}
+#promptBlocks .pinnedBlock{display:flex;align-items:center;border:1px solid #455268;border-radius:10px;background:#252f40;margin:6px 0;min-height:43px;overflow:hidden}
+#promptBlocks .pinnedBlock>div{display:flex;align-items:center;gap:9px;width:100%;padding:9px 11px}
+#promptBlocks .pinnedBlock .blockName{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#promptBlocks .pinnedBlock .blockSwitch{flex:none}
+#promptBlocks details.promptBlock>summary{touch-action:manipulation}
+#promptBlocks details.promptBlock[open]>.blockEditor{display:block!important}
+</style><style>
+#promptBlocks .promptBlock{display:block!important;height:auto!important;min-height:0!important;margin:6px 0!important;padding:0!important;border:1px solid #455268!important;border-radius:8px!important;background:#252f40!important;overflow:hidden!important}
+#promptBlocks .promptBlock .blockSummary{display:flex!important;align-items:center!important;gap:8px!important;padding:9px 11px!important;min-height:43px!important;box-sizing:border-box!important;cursor:pointer!important;touch-action:manipulation!important}
+#promptBlocks .promptBlock .blockName{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#promptBlocks .promptBlock .blockEditor{display:none!important}
+#promptBlocks .promptBlock.expanded .blockEditor{display:block!important;padding:8px 12px 12px!important}
+#promptBlocks .promptBlock.expanded .blockChevron{transform:rotate(180deg)}
+#promptBlocks .promptBlock .blockEditor label{display:block;margin:8px 0 5px}
+#promptBlocks .promptBlock .blockEditor input[type=text],#promptBlocks .promptBlock .blockEditor textarea{display:block;width:100%;box-sizing:border-box;padding:9px;margin:0 0 10px;border-radius:7px;background:#1b2433;color:#fff;border:1px solid #53637b;font-size:14px}
+#promptBlocks .promptBlock .blockEditor textarea{min-height:145px;resize:vertical}
+#promptBlocks .promptBlock .blockEditor .actions{display:flex;gap:8px;margin-top:9px}
+#promptBlocks .promptBlock .blockSwitch{position:relative;z-index:2;pointer-events:auto}
+#promptBlocks .promptBlock .blockSwitch input{pointer-events:auto;cursor:pointer}
+</style><style>#promptBlocks .blockTokenCount{flex:none;white-space:nowrap;font-size:11px;color:#aebcd1;font-variant-numeric:tabular-nums;margin-left:auto}#promptBlocks .blockSummary .blockName{margin-right:4px}#promptBlocks .pinnedBlock .blockTokenCount{margin-left:auto}</style></head><body><nav class="mobileTabs" aria-label="主要分頁"><button data-page="preset" onclick="tab('preset')">預設</button><button data-page="api" onclick="tab('api')">API</button><button data-page="lore" onclick="tab('lore')">世界書</button><button data-page="regex" onclick="tab('regex')">正則</button><button data-page="right" onclick="tab('right')">紀錄</button></nav><div class="loreViewer" id="loreViewer" hidden role="dialog" aria-modal="true" aria-label="世界書條目內容"><div class="loreViewerCard"><div class="loreViewerHead"><strong id="loreViewerTitle"></strong><button id="loreViewerClose" type="button" aria-label="關閉">✕</button></div><div id="loreViewerMeta" class="loreViewerMeta"></div><div id="loreViewerBody" class="loreViewerBody"></div></div></div><div class="app"><aside class="side" id="left"><h2 class="sideTitle">角色扮演 <span>MODEL PLAYGROUND</span></h2><nav class="sectionNav" aria-label="設定分頁"><button type="button" onclick="jumpSection(0)"><span>預設</span></button><button type="button" onclick="jumpSection(1)"><span>API</span></button><button type="button" onclick="jumpSection(2)"><span>世界書</span></button><button type="button" onclick="jumpSection(3)"><span>正則</span></button></nav><details open><summary>預設</summary><input id="presetFile" type="file" accept=".json"><small>匯入後自動新增預設，可隨時切換或選擇 None。</small><label>切換預設</label><select id="presetSelect"><option value="-1">None（不使用預設）</option></select><textarea id="systemPrompt" rows="1" hidden aria-hidden="true"></textarea><div id="presetInfo" class="hint"></div><div class="presetParams"><label>Temperature</label><div class="parameterControl"><input id="temperature" type="number" step="0.1" min="0" max="2" value="1"><input class="parameterSlider" type="range" data-target="temperature" min="0" max="2" step="0.05" value="1" aria-label="Temperature 拉桿"></div><label>Top P</label><div class="parameterControl"><input id="topP" type="number" step="0.05" min="0" max="1" value="1"><input class="parameterSlider" type="range" data-target="topP" min="0" max="1" step="0.01" value="1" aria-label="Top P 拉桿"></div><label>Top K</label><div class="parameterControl"><input id="topK" type="number" min="0" max="200" step="1" value="0"><input class="parameterSlider" type="range" data-target="topK" min="0" max="200" step="1" value="0" aria-label="Top K 拉桿"></div><label>Max Input Tokens</label><div class="parameterControl"><input id="maxInputTokens" type="number" min="1" step="1" value="2000000"><input class="parameterSlider" type="range" data-target="maxInputTokens" min="1" max="2000000" step="1000" value="2000000" aria-label="Max Input Tokens 拉桿"></div><label>Max Output Tokens</label><div class="parameterControl"><input id="maxTokens" type="number" min="1" step="1" value="100000"><input class="parameterSlider" type="range" data-target="maxTokens" min="1" max="2000000" step="1000" value="100000" aria-label="Max Output Tokens 拉桿"></div></div><small>Input 是上下文預算參考值；Output 會送入 API。實際上限依模型而異，API 固定帶最近 3 輪歷史及本輪輸入；不會依 Input 數值自動刪除訊息。</small><div class="blockTitle"><h3>Prompt Blocks</h3><button id="addPromptBlock" type="button" class="addPromptBlock" title="新增 Prompt Block" aria-label="新增 Prompt Block">＋</button><span id="tokenStats" title="BPE tokenizer 本機計算；非 OpenAI 模型使用相容 tokenizer，屬近似值">Token：載入中…</span></div><div id="promptBlocks"></div>
+
+<div class="autoParseSettings"><label class="presetAuto"><input id="presetAutoParse" type="checkbox"><span>自動解析</span></label><div id="autoParseFields" hidden><label for="autoParsePrefix">前綴</label><textarea id="autoParsePrefix" rows="2" placeholder="輸入前綴"></textarea><label for="autoParseSuffix">後綴</label><textarea id="autoParseSuffix" rows="2" placeholder="輸入後綴"></textarea></div></div></details><details open><summary>API</summary><label>API 服務商</label><select id="provider"><option value="openai">OpenAI（官方）</option><option value="gemini">Google AI Studio（Gemini API）</option><option value="vertex">Google Vertex AI（Google Cloud）</option><option value="anthropic">Anthropic Claude（官方）</option><option value="compatible">OpenAI 相容 API／自訂端點</option></select><div id="endpointWrap" hidden><label>API Endpoint / Base URL</label><input id="endpoint" placeholder="https://example.com/v1"></div><div id="vertexFields" hidden><label>Google Cloud Project ID</label><input id="vertexProject" placeholder="my-google-cloud-project"><label>Vertex AI Region</label><input id="vertexLocation" value="us-central1" placeholder="us-central1 或 global"><small>Vertex AI 使用 Google Cloud OAuth 2.0 Access Token（非 AI Studio API Key）。Token 通常約 1 小時到期；純前端不支援 Service Account JSON 金鑰。</small></div><label id="keyLabel">API Key（僅本次分頁）</label><input id="key" type="password" autocomplete="off"><label>模型列表</label><select id="modelList"><option value="">請先取得模型列表</option></select><label>Model ID（可手動輸入）</label><input id="model" placeholder="選擇列表或手動輸入"><div class="actions"><button id="fetchModels" type="button">取得模型列表</button><button id="test">測試連線</button><span class="status" id="apiStatus"></span></div><small>純前端金鑰會暴露於瀏覽器環境；只使用信任的端點，請勿使用共用電腦。CORS 由 API 端決定。</small></details><details open><summary>世界書</summary><input id="loreFile" type="file" accept=".json"><label>掃描最近 N 則訊息</label><input id="scanDepth" type="number" min="1" value="10"><div class="row"><input id="recursive" type="checkbox"><small>遞迴觸發（基本支援）</small></div><div id="loreInfo" class="hint"></div><div id="loreEntries" class="loreEntries"></div></details><details open><summary>正則</summary><div class="regexTabs"><button type="button" id="charRegexTab" class="selected">角色卡正則</button><button type="button" id="presetRegexTab">預設正則</button></div><div id="regexScopeInfo" class="hint"></div><h3>正則腳本</h3><input id="regexFile" type="file" accept=".json"><div id="regexScripts"></div><small>角色卡與預設的正則分開管理；目前僅部分角色卡顯示正則會實際套用，預設正則尚未完整執行。</small></details><details class="compatPanel"><summary>相容性提示</summary><div id="warnings" class="hint">未偵測到問題。</div></details></aside><main class="main active" id="main"><header class="top"><div class="characterTrigger" id="characterTrigger"><img class="avatar" id="avatar" alt="角色圖片"><div><strong id="headerName">角色扮演測試台</strong><div class="hint" id="turns">0 輪</div></div></div><button type="button" id="importCharacterBtn">匯入</button></header><div class="characterPanel hidden" id="characterPanel" hidden><div class="panelHeading"><strong>角色卡</strong><button type="button" id="closeCharacter">✕</button></div><label>匯入 JSON / PNG</label><input id="charFile" type="file" accept=".json,.png,application/json,image/png"><div id="charInfo" class="hint">尚未匯入</div><label>使用者名稱（{{user}}）</label><input id="userName" value="User"><label>角色名稱</label><input id="charName" placeholder="匯入後顯示"><div class="actions"><button id="applyGreeting">確認並開始</button><button type="button" id="cancelCharacter">取消</button></div></div><div class="chat" id="chat"></div><div class="composer"><div class="composeRow"><textarea id="input" rows="2" placeholder="輸入訊息…"></textarea><button id="send" class="composeAction" title="送出">➤</button><button id="stop" class="composeAction" title="停止生成" hidden>■</button><button id="regen" class="composeAction" title="重新生成" hidden>↻</button></div><div class="status" id="chatStatus"></div></div></main><aside class="side right" id="right"><h2>紀錄與檢視</h2><div class="actions"><button id="exportJson">匯出 JSON</button><button id="exportCsv">匯出 CSV</button></div><label>匯入紀錄 JSON</label><input type="file" id="importChat" accept=".json"><h3>本輪觸發世界書</h3><div id="activeLore" class="hint">尚無</div><h3>對話歷史</h3><div id="history"></div><h3>上次實際送出的 API Input</h3><button id="preview">預覽下一輪 Prompt</button><pre id="previewView">尚無預覽</pre><pre id="promptView">尚未送出 API 請求</pre><h3>上次 API 請求</h3><pre id="requestView">尚無</pre><h3>重新生成診斷（不額外呼叫 API）</h3><pre id="regenDiagnostics">尚無</pre><small>預覽為組合後的訊息；不同供應商可能會轉換角色格式。匯出不包含 API Key。</small></aside></div><script>
+function jumpSection(i){const panels=[...document.querySelectorAll('#left > details')].filter(p=>!p.classList.contains('compatPanel'));const buttons=[...document.querySelectorAll('.sectionNav button')];panels.forEach((p,j)=>{p.open=j===i;p.classList.toggle('selectedPanel',j===i)});buttons.forEach((b,j)=>{b.classList.toggle('selected',j===i);b.setAttribute('aria-selected',String(j===i))});document.getElementById('left').scrollTop=0}
+
+'use strict';
+const $=id=>document.getElementById(id), storageKey='rp_test_v1';let state={messages:[],char:null,lore:[],presets:[createBuiltInDefault()],presetIndex:0,lastTriggered:[],lastPrompt:[],lastRequest:null,lastDiagnostics:[],regexScripts:[],warnings:[]},controller=null,avatarUrl='',regexScope='character';
+function tab(which){if(which===window.currentPage)which='main';window.currentPage=which;const left=['preset','api','lore','regex'].includes(which);for(const id of ['left','main','right'])$(id).classList.toggle('active',id===(left?'left':which));if(left)jumpSection({preset:0,api:1,lore:2,regex:3}[which]);document.querySelectorAll('.mobileTabs button').forEach(b=>{let selected=b.dataset.page===which;b.classList.toggle('current',selected);b.setAttribute('aria-selected',String(selected))})}
+function warn(s){if(!state.warnings.includes(s))state.warnings.push(s);$('warnings').textContent=state.warnings.join('\n')}
+function persist(){state.lore=withoutUserpanel(state.lore);try{localStorage.setItem(storageKey,JSON.stringify({messages:state.messages,char:state.char,lore:state.lore,presets:state.presets,presetIndex:state.presetIndex,regexScripts:state.regexScripts,settings:getSettings(),userName:$('userName').value,systemPrompt:$('systemPrompt').value}))}catch(e){warn('本機儲存容量不足：'+e.message)}}
+function getSettings(){return {provider:$('provider').value,endpoint:$('endpoint').value,model:$('model').value,temperature:$('temperature').value,topP:$('topP').value,maxTokens:$('maxTokens').value,maxInputTokens:$('maxInputTokens').value,topK:$('topK').value,scanDepth:$('scanDepth').value,recursive:$('recursive').checked,vertexProject:$('vertexProject').value,vertexLocation:$('vertexLocation').value}}
+function applySettings(o={}){for(const [k,v] of Object.entries(o))if($(k))$(k).type==='checkbox'?$(k).checked=!!v:$(k).value=v}
+function variable(s){return String(s||'').replace(/{{\s*char\s*}}/gi,$('charName').value||'Character').replace(/{{\s*user\s*}}/gi,$('userName').value||'User')}
+function parseChar(raw){let c=raw.data||raw;return {name:c.name||raw.name||'',description:c.description||'',personality:c.personality||'',scenario:c.scenario||'',first_mes:c.first_mes||'',mes_example:c.mes_example||'',system_prompt:c.system_prompt||'',post_history_instructions:c.post_history_instructions||'',alternate_greetings:c.alternate_greetings||[],character_book:c.character_book||raw.character_book||null,creator_notes:c.creator_notes||'',regex_scripts:c.extensions?.regex_scripts||raw.data?.extensions?.regex_scripts||[]}}
+function decodeBase64(s){let b=atob(s),a=Uint8Array.from(b,c=>c.charCodeAt(0));return new TextDecoder().decode(a)}
+function pngData(buf){let v=new DataView(buf),u=new Uint8Array(buf);if(v.getUint32(0)!==0x89504e47)throw Error('不是 PNG');let p=8;while(p+12<=u.length){let len=v.getUint32(p),type=String.fromCharCode(...u.slice(p+4,p+8)),d=p+8;if(d+len+4>u.length)break;if(type==='tEXt'){let z=u.indexOf(0,d);if(z>=d&&z<d+len){let k=new TextDecoder().decode(u.slice(d,z));if(['chara','ccv3'].includes(k)){let val=new TextDecoder('latin1').decode(u.slice(z+1,d+len));return JSON.parse(decodeBase64(val))}}}if(type==='iTXt'){let z=u.indexOf(0,d);if(z>=d){let k=new TextDecoder().decode(u.slice(d,z));if(['chara','ccv3'].includes(k)){let q=z+1,compressed=u[q],method=u[q+1];q+=2;while(q<d+len&&u[q])q++;q++;while(q<d+len&&u[q])q++;q++;if(!compressed)return JSON.parse(new TextDecoder().decode(u.slice(q,d+len)));warn('此 PNG 使用壓縮 iTXt，尚未支援')}}}p=d+len+4}throw Error('PNG 未找到可辨識的 chara / ccv3 角色資料')}
+function withoutUserpanel(entries){return (Array.isArray(entries)?entries:[]).filter(e=>String(e?.id??e?.uid)!=='54'&&String(e?.name??e?.comment??'').trim().toLowerCase()!=='userpanel')}
+function normalizeLore(raw){
+ const b=raw?.data?.character_book||raw?.character_book||raw?.data?.extensions?.world||raw;
+ const entries=b?.entries||b?.data?.entries||[];
+ const list=Array.isArray(entries)?entries:Object.values(entries);
+ const array=v=>Array.isArray(v)?v:(v==null?[]:String(v).split(','));
+ return withoutUserpanel(list.map((e,i)=>{
+  const ext=e.extensions||{};
+  return {
+   sourceIndex:i,id:e.uid??e.id??i,name:e.comment||e.name||`條目 ${i+1}`,content:e.content||'',
+   keys:array(e.keys??e.key),secondary:array(e.secondary_keys??e.keysecondary),
+   constant:!!(e.constant??ext.constant),enabled:!(e.disable||e.enabled===false),
+     basePosition:e.position??'before_char',extensionPosition:ext.position??null,
+   position:ext.position??e.position??0,depth:ext.depth??e.depth??0,
+   order:e.insertion_order??e.order??ext.order??100,
+   probability:e.probability??ext.probability??100,useProbability:ext.useProbability??true,
+   selective:!!e.selective,caseSensitive:!!(e.case_sensitive??ext.case_sensitive),
+   matchWholeWords:!!(e.match_whole_words??ext.match_whole_words),
+   selectiveLogic:e.selectiveLogic??e.selective_logic??ext.selectiveLogic??0,
+   scanDepth:e.scanDepth??e.scan_depth??ext.scan_depth??null,
+   preventRecursion:!!(e.prevent_recursion??ext.prevent_recursion),
+   excludeRecursion:!!(e.exclude_recursion??ext.exclude_recursion),
+   delayUntilRecursion:!!(e.delay_until_recursion??ext.delay_until_recursion),
+   useRegex:!!(e.use_regex??ext.use_regex)
+  };
+ }));
+}
+
+function greetingOptions(){let c=state.char;return c?[c.first_mes||'',...(c.alternate_greetings||[])]:[]}
+function displayRegex(text){
+ const scripts=[...(state.char?.regex_scripts||[])];
+ // Display-only transforms; preserve raw message text for prompt history.
+ for(const r of scripts){
+  if(r.disabled||r.promptOnly||!Array.isArray(r.placement)||!r.placement.includes(2))continue;
+  try{
+   const spec=String(r.findRegex||'');const match=spec.match(/^\/(.*)\/([gimsuy]*)$/s);
+   const re=match?new RegExp(match[1],match[2]):new RegExp(spec,'g');
+   const template=String(r.replaceString??'');
+   text=text.replace(re,(full,...args)=>{
+    const groups=args.slice(0,-2);
+    // Keep $$ literally: Hogwarts initialization embeds JS identifiers using $$.
+    // Expand $1..$99 for the header/panel scripts without altering script code.
+    return template.replace(/\$(\$|[1-9][0-9]?)/g,(token,key)=>key==='$'?'$$':(groups[Number(key)-1]??token));
+   });
+  }catch(e){console.warn('正則失敗',r.scriptName,e)}
+ }
+ return text;
+}
+function greetingText(i){return variable(greetingOptions()[i]||'')}
+function showRenderedMessage(body,m){
+ let source=String(m.content||'');
+ let summary=null;
+ if(m.role==='assistant'){
+  const matches=[...source.matchAll(/<rp_summary>([\s\S]*?)<\/rp_summary>/gi)];
+  if(matches.length){summary=matches.at(-1)[1].trim();source=source.replace(/<rp_summary>[\s\S]*?<\/rp_summary>/gi,'').trim()}
+ }
+ let transformed=displayRegex(source);
+ const appendSummary=()=>{if(summary!==null){const d=document.createElement('details');d.className='rpSummaryFold';d.style.cssText='margin-top:10px;padding:9px 12px;border:1px solid #455268;border-radius:9px';const heading=document.createElement('summary');heading.textContent='劇情摘要';const content=document.createElement('div');content.style.cssText='white-space:pre-wrap;margin-top:8px';content.textContent=summary;d.append(heading,content);body.append(d)}};
+ const pattern=/```html\s*\n([\s\S]*?)\n```/gi;
+ let last=0,found=false,match;
+ function addText(value){
+  // <content> is a roleplay section delimiter, not text intended for readers.
+  // Strip only in the display layer; keep the original response for prompt history.
+  value=value.replace(/<\/?content\s*>/gi,'').trim();
+  if(!value)return;
+  let t=document.createElement('div');t.className='rp-story';t.textContent=value;body.append(t)
+ }
+ while(m.role==='assistant'&&(match=pattern.exec(transformed))){found=true;addText(transformed.slice(last,match.index));let frame=document.createElement('iframe');frame.setAttribute('sandbox','allow-scripts');frame.setAttribute('title','角色卡互動介面');frame.style.cssText='display:block;width:100%;height:160px;border:0;border-radius:8px;background:transparent;overflow:hidden';frame.srcdoc=`<script>(function(){window.triggerSlash=function(cmd){parent.postMessage({type:'rp-card-slash',commands:String(cmd)},'*')};function reportHeight(){var d=document.documentElement,b=document.body;if(!d||!b)return;var h=Math.max(d.scrollHeight,b.scrollHeight,d.offsetHeight,b.offsetHeight);parent.postMessage({type:'rp-card-height',height:h},'*')}window.addEventListener('load',reportHeight);if(typeof ResizeObserver!=='undefined'){new ResizeObserver(reportHeight).observe(document.documentElement);new ResizeObserver(reportHeight).observe(document.body)}document.addEventListener('DOMContentLoaded',function(){reportHeight();document.querySelectorAll('img').forEach(function(img){img.addEventListener('load',reportHeight);img.addEventListener('error',reportHeight)})});if(document.fonts&&document.fonts.ready)document.fonts.ready.then(reportHeight);setTimeout(reportHeight,100);setTimeout(reportHeight,500)})();<\/script>`+match[1];body.append(frame);last=pattern.lastIndex}
+ if(found){addText(transformed.slice(last));appendSummary();return}
+ // Reasoning presentation is controlled by the imported preset/regex, not hard-coded here.
+ addText(transformed);appendSummary();
+}
+// Resize only the iframe that sent the measurement; no cross-origin DOM access required.
+window.addEventListener('message',function(event){
+ if(event.data?.type!=='rp-card-height')return;
+ const frame=Array.from(document.querySelectorAll('iframe[title="角色卡互動介面"]')).find(f=>f.contentWindow===event.source);
+ if(!frame)return;
+ const height=Number(event.data.height);
+ if(Number.isFinite(height)&&height>0&&height<100000)frame.style.height=Math.ceil(height+2)+'px';
+});
+function setChar(raw){state.messages=[];state.lastTriggered=[];state.lastPrompt=[];state.lastRequest=null;$('promptView').textContent='尚未送出 API 請求';$('requestView').textContent='尚無';$('previewView').textContent='尚無預覽';state.char=parseChar(raw);$('charName').value=state.char.name;$('charInfo').textContent=state.char.name;if(state.char.character_book){state.lore=normalizeLore(state.char.character_book);$('loreInfo').textContent=`角色卡內嵌 ${state.lore.length} 條世界書`;}render();refreshRegexScope();persist()}
+function applyGreeting(){if(!state.char)return;let text=greetingText(0);state.messages=text.trim()?[{role:'assistant',content:text,greeting:true,greetingIndex:0,time:new Date().toISOString()}]:[];render();persist();$('characterPanel').classList.add('hidden')}
+function switchGreeting(direction){let options=greetingOptions();if(options.length<2||!state.messages[0]?.greeting)return;let m=state.messages[0],i=((m.greetingIndex||0)+direction+options.length)%options.length;m.greetingIndex=i;m.content=greetingText(i);m.time=new Date().toISOString();render();persist()}
+function createBuiltInDefault(){
+ const prompts=[
+  {identifier:'custom_zh_tw_output',name:'繁體中文（zh-TW）輸出',role:'system',content:'請使用繁體中文（zh-TW）回覆。'},
+  {identifier:'custom_response_length',name:'正文 1200–1600 字',role:'system',content:'角色扮演正文以約 1200–1600 字為目標；狀態欄與摘要不計入正文。'},
+  {identifier:'custom_story_summary',name:'劇情摘要',role:'system',content:'請維持角色卡要求的正文及狀態欄格式。每次回覆結尾以 <rp_summary>...</rp_summary> 輸出完整、累積更新後的劇情摘要清單；每一筆新增的本輪摘要約 100～150 字，只記錄已發生的事實。清單從 1 開始逐輪累積至 5；當前一則摘要清單已有 1～5 時，將這五筆濃縮成一筆長期摘要 L1（之後依序 L2、L3……），保留人物關係、重大事件及未完成任務，並同時從新的 1 開始記錄本輪。每次必須完整保留先前的 L 摘要與尚未濃縮的 1～5，不得只輸出本輪一筆。只輸出一組 <rp_summary> 標籤；摘要不計入正文。'}
+ ];
+ return {name:'Default',__builtInDefault:true,prompts,
+  prompt_order:[{character_id:100001,order:prompts.map(x=>({identifier:x.identifier,enabled:true}))}]};
+}
+function ensureBuiltInDefault(){
+ if(!Array.isArray(state.presets))state.presets=[];
+ const built=state.presets.find(p=>p&&p.__builtInDefault);
+ if(built){
+  const reference=createBuiltInDefault();
+  for(const item of reference.prompts){if(!built.prompts?.some(x=>x.identifier===item.identifier)){(built.prompts??=[]).push(item);(built.prompt_order??=[{character_id:100001,order:[]}])[0].order.push({identifier:item.identifier,enabled:true})}}
+  return;
+ }
+ state.presets.unshift(createBuiltInDefault());
+ // An existing selected imported preset shifts by one; None remains None.
+ if(state.presetIndex>=0)state.presetIndex++;
+}
+function presetLabel(p,i){return p?(p.name||p.preset_name||p.presetName||p.__importName||'預設 '+(i+1)):'預設 '+(i+1)}
+function presetOptions(){let sel=$('presetSelect');sel.innerHTML='<option value="-1">None（不使用預設）</option>'+state.presets.map((p,i)=>`<option value="${i}">${escapeHtml(presetLabel(p,i))}</option>`).join('');sel.value=String(state.presetIndex)}
+function loadPreset(raw,filename){state.presets.push({...raw,__importName:filename.replace(/\.json$/i,'')});state.presetIndex=state.presets.length-1;showPreset();persist()}
+
+function showPreset(){if(state.presets.length&&(!Number.isInteger(state.presetIndex)||state.presetIndex>=state.presets.length))state.presetIndex=state.presets.length-1;presetOptions();let p=state.presets[state.presetIndex];if(!p){$('autoParsePrefix').value='';$('autoParseSuffix').value='';$('autoParseFields').hidden=true;$('presetInfo').textContent=state.presetIndex<0?'目前為 None：不套用任何預設。':'這個欄位尚未匯入預設。';$('promptBlocks').replaceChildren();$('tokenStats').textContent='Token：—';$('systemPrompt').value='';$('presetAutoParse').checked=false;$('presetAutoParse').disabled=true;persist();return}$('presetAutoParse').disabled=false;$('presetAutoParse').checked=!!p.__autoParse;$('autoParsePrefix').value=p.__autoParsePrefix||'';$('autoParseSuffix').value=p.__autoParseSuffix||'';$('autoParseFields').hidden=!p.__autoParse;let sys=p.prompts?.find(x=>x.identifier==='main'||x.identifier==='system_prompt')?.content||p.main_prompt||p.system_prompt||'';$('systemPrompt').value=sys;for(let [k,v] of [['temperature',p.temperature],['topP',p.top_p],['maxTokens',p.max_tokens??p.openai_max_tokens??p.max_output_tokens],['maxInputTokens',p.max_context??p.max_input_tokens??p.context_size],['topK',p.top_k??p.topK]])if(v!=null)$(k).value=v;$('presetInfo').textContent=`${p.prompts?.length||0} 個 Prompt Blocks，按預設順序排列。`;renderBlocks();syncParameterSliders()}
+function escapeHtml(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+// 使用真正的 BPE tokenizer。首次使用需連網載入詞彙表；不呼叫付費生成 API。
+// 非 OpenAI 模型採相容 tokenizer，數值為近似值，非供應商帳單用量。
+const tokenEngine={encode:null,model:'',loading:null,error:''};
+function tokenizerModel(){
+ const model=String($('model')?.value||'').toLowerCase();
+ if(/gpt-4o|gpt-4\.1|gpt-4\.5|gpt-5|gpt-6|o1|o3|o4/.test(model))return 'gpt-4o';
+ return 'gpt-4';
+}
+function tokenLabel(){let model=String($('model')?.value||'').toLowerCase();return /^(gpt-|o1|o3|o4)/.test(model)?'BPE':'相容 BPE 約';}
+async function loadTokenizer(){
+ const target=tokenizerModel();
+ if(tokenEngine.encode&&tokenEngine.model===target)return true;
+ if(tokenEngine.loading)return tokenEngine.loading;
+ tokenEngine.error='';
+ tokenEngine.loading=(async()=>{
+  try{
+   // gpt-tokenizer 的 model-specific entrypoint；不含 API Key 或對話上傳。
+   const mod=await import('https://cdn.jsdelivr.net/npm/gpt-tokenizer@3.4.0/model/'+target+'/+esm');
+   if(typeof mod.encode!=='function')throw Error('Tokenizer 模組未提供 encode');
+   tokenEngine.encode=mod.encode;tokenEngine.model=target;return true;
+  }catch(e){tokenEngine.encode=null;tokenEngine.error=e.message||String(e);return false;}
+  finally{tokenEngine.loading=null;}
+ })();return tokenEngine.loading;
+}
+function countTokens(t){
+ if(!tokenEngine.encode||tokenEngine.model!==tokenizerModel())return null;
+ try{return tokenEngine.encode(String(t??'')).length}catch(e){return null}
+}
+let tokenUpdateId=0;
+function updateTokenStats(){
+ const seq=++tokenUpdateId,el=$('tokenStats');
+ if(!tokenEngine.encode||tokenEngine.model!==tokenizerModel()){
+  el.textContent=tokenEngine.error?'Token：—（Tokenizer 載入失敗）':'Token：載入中…';
+  loadTokenizer().then(ok=>{if(ok&&seq===tokenUpdateId)updateTokenStats();else if(!ok&&seq===tokenUpdateId)el.textContent='Token：—（Tokenizer 無法載入）'});
+  return;
+ }
+ let total=0,history=0,lore=0,blocks=0;
+ if(state.char){
+  try{
+   const messages=buildPrompt({preview:true});
+   total=messages.reduce((sum,m)=>sum+(countTokens(m.content)||0),0);
+   const chat=state.messages.filter(m=>m.role==='user'||m.role==='assistant');
+   history=chat.reduce((sum,m)=>sum+(countTokens(m.content)||0),0);
+   const active=resolveWorldbook(chat.length&&chat.at(-1).role==='user'?chat:[...chat,{role:'user',content:''}]);
+   lore=active.reduce((sum,e)=>sum+(countTokens(String(e.content||'').replace(/{{\s*(char|user)\s*}}/gi,(_,k)=>k.toLowerCase()==='char'?(state.char?.name||''):($('userName').value||'User')))||0),0);
+   blocks=Math.max(0,total-history-lore);
+   el.title='依目前角色卡、啟用的預設、世界書觸發與聊天歷史估算；不含 API 包裝開銷。未輸入新訊息時以空白 user 訊息預覽。';
+   el.textContent=`${tokenLabel()}：${total.toLocaleString()} tokens（Block ${blocks.toLocaleString()}／世界書 ${lore.toLocaleString()}／歷史 ${history.toLocaleString()}）`;
+  }catch(err){el.textContent='Token：無法估算（'+err.message+'）'}
+ }else{
+  el.textContent='Token：請先匯入角色卡（包含世界書）';
+ }
+ document.querySelectorAll('#promptBlocks .blockTokenCount').forEach(n=>n.dispatchEvent(new Event('token-refresh')));
+}
+
+function applyCustomParse(text,p){
+ let out=String(text??'');
+ if(!p?.__autoParse)return out;
+ return String(p.__autoParsePrefix||'')+out+String(p.__autoParseSuffix||'');
+}
+
+function addPromptBlock(){
+ let p=state.presets[state.presetIndex];
+ if(!p){p={name:'自訂預設',prompts:[],prompt_order:[{character_id:100001,order:[]}]};state.presets.push(p);state.presetIndex=state.presets.length-1}
+ if(!Array.isArray(p.prompts))p.prompts=[];
+ let order=selectedOrder(p);
+ if(!Array.isArray(order)||!Array.isArray(p.prompt_order)){p.prompt_order=[{character_id:100001,order:[]}];order=p.prompt_order[0].order}
+ let id='custom_'+Date.now().toString(36)+'_'+p.prompts.length;
+ p.prompts.push({identifier:id,name:'新 Prompt Block',role:'system',content:'',__autoParse:false});
+ order.push({identifier:id,enabled:true});
+ showPreset();
+ let nodes=document.querySelectorAll('#promptBlocks .promptBlock:not(.pinnedBlock)');let last=nodes[nodes.length-1];
+ if(last){last.classList.add('expanded');let area=last.querySelector('textarea');if(area)area.focus()}
+ persist();
+}
+document.getElementById('addPromptBlock').addEventListener('click',addPromptBlock);
+$('model').addEventListener('input',()=>{tokenEngine.error='';updateTokenStats()});
+function renderBlocks(){
+ let p=state.presets[state.presetIndex],host=$('promptBlocks');if(!host)return;host.replaceChildren();if(!p){host.textContent='尚未選擇預設';return;}if(!Array.isArray(p.prompts))p.prompts=[];
+ let order=selectedOrder(p);if(!Array.isArray(order))order=[];let lookup=Object.fromEntries((p.prompts||[]).filter(n=>n&&n.identifier).map(n=>[n.identifier,n]));
+ const pins=new Set(['worldInfoBefore','worldInfoAfter','personaDescription','charDescription','charPersonality','scenario','dialogueExamples','chatHistory','worldInfoBefore','worldInfoAfter','persona','description','personality','worldInfo','chatExamples']);
+ for(let [i,item] of order.entries()){
+  let id=item.identifier||item,node=lookup[id]||{identifier:id,name:id,content:''};
+  if(id.startsWith('custom_')&&!['custom_zh_tw_output','custom_response_length'].includes(id)&&!String(node.content||'').trim()&&(!node.name||node.name==='自訂 Prompt Block'||node.name==='新 Prompt Block'||node.name===id))continue;
+  let isPin=pins.has(id),isCustom=id.startsWith('custom_')||(!isPin&&id!=='main'&&id!=='postHistoryInstructions');
+  let d=document.createElement('div');d.className='promptBlock'+(isPin?' pinnedBlock':'');
+  let summary=document.createElement('div');if(!isPin){summary.classList.add('blockSummary');summary.setAttribute('role','button');summary.tabIndex=0;}
+  let mark=document.createElement('span');mark.className='blockMarker';mark.textContent=isPin?'📌':'▤';mark.setAttribute('aria-hidden','true');
+  let name=document.createElement('span');name.className='blockName';
+  let readableName=(node.name&&node.name!==id)?node.name:(id.startsWith('custom_')?'自訂 Prompt Block':(node.name||id));
+  name.textContent=readableName;
+  let toggle=document.createElement('input');toggle.type='checkbox';toggle.checked=item.enabled!==false;toggle.setAttribute('aria-label','啟用 '+readableName);
+  toggle.addEventListener('click',e=>e.stopPropagation());
+  toggle.addEventListener('change',()=>{if(typeof item==='object')item.enabled=toggle.checked;else order[i]={identifier:id,enabled:toggle.checked};persist();updateTokenStats()});
+  let blockTokens=document.createElement('span');blockTokens.className='blockTokenCount';
+  const refreshBlockTokens=()=>{
+   const pinText={charDescription:state.char?.description,charPersonality:state.char?.personality,scenario:state.char?.scenario,dialogueExamples:state.char?.mes_example,postHistoryInstructions:state.char?.post_history_instructions};
+   let txt=isPin?(pinText[id]||''):(node.content||((id==='main')?$('systemPrompt').value:''));
+   if(id==='chatHistory')txt=(state.messages||[]).map(m=>m.content||'').join('\n');
+   if(id==='worldInfoBefore'||id==='worldInfoAfter'){txt='';}
+   let n=countTokens(isPin?txt:applyCustomParse(txt,p));
+   blockTokens.textContent=n===null?'—':n.toLocaleString();
+   blockTokens.title=n===null?'Tokenizer 尚未載入':`${tokenLabel()} Token 數${isPin?'（目前內容）':''}`;
+  };
+  blockTokens.addEventListener('token-refresh',refreshBlockTokens);
+  refreshBlockTokens();
+  let switchWrap=document.createElement('label');switchWrap.className='blockSwitch';switchWrap.addEventListener('click',e=>e.stopPropagation());let knob=document.createElement('i');switchWrap.append(toggle,knob);
+  let chevron=document.createElement('span');chevron.className='blockChevron';chevron.textContent='⌄';
+  if(isPin)chevron.remove();
+  summary.append(mark,name,blockTokens,switchWrap,...(isPin?[]:[chevron]));d.append(summary);
+  if(!isPin){
+   const flip=()=>{d.open=!d.open;d.classList.toggle('expanded',d.open);};
+   summary.addEventListener('click',e=>{if(e.target.closest('.blockSwitch'))return;flip()});
+   summary.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();flip()}});
+  }
+  let editor=document.createElement('div');editor.className='blockEditor';
+  if(isPin){
+   let hint=document.createElement('p');hint.className='pinHint';hint.textContent='📌 此項目由角色卡、世界書或聊天紀錄動態填入，不需要手動編輯。';editor.append(hint);
+  }else{
+   let nameLabel=document.createElement('label');nameLabel.textContent='名稱';editor.append(nameLabel);
+   let nameEdit=document.createElement('input');nameEdit.type='text';nameEdit.value=readableName;nameEdit.setAttribute('aria-label','Block 名稱');
+   nameEdit.addEventListener('input',()=>{node.name=nameEdit.value;name.textContent=nameEdit.value||'自訂 Prompt Block';if(!lookup[id]){p.prompts.push(node);lookup[id]=node}persist()});
+   editor.append(nameEdit);
+   let contentLabel=document.createElement('label');contentLabel.textContent='Prompt 內容';editor.append(contentLabel);
+   let ta=document.createElement('textarea');ta.rows=6;ta.value=node.content||((id==='main')?$('systemPrompt').value:'');ta.placeholder='在這裡編輯 Prompt 內容';
+   ta.addEventListener('input',()=>{node.content=ta.value;if(id==='main')$('systemPrompt').value=ta.value;if(!lookup[id]){p.prompts.push(node);lookup[id]=node}refreshBlockTokens();updateTokenStats();persist()});
+   editor.append(ta);
+  }
+  let meta=document.createElement('small');meta.className='blockMeta';meta.textContent='ID：'+id;editor.append(meta);
+  let actions=document.createElement('div');actions.className='actions';
+  for(let [direction,txt] of [[-1,'↑'],[1,'↓']]){let b=document.createElement('button');b.type='button';b.textContent=txt;b.onclick=()=>{let j=i+direction;if(j<0||j>=order.length)return;[order[i],order[j]]=[order[j],order[i]];renderBlocks();persist()};actions.append(b)}
+  editor.append(actions);if(!isPin)d.append(editor);host.append(d);
+ }
+ for(let n of p.prompts||[]){if(order.some(x=>(x.identifier||x)===n.identifier))continue;let d=document.createElement('div');d.className='hint';d.textContent='未在順序中：'+(n.name||n.identifier);host.append(d)}
+ updateTokenStats();
+}
+
+function getActiveRegex(){return regexScope==='character'?(state.char?.regex_scripts||[]).map((r,i)=>({id:r.id??i,name:r.scriptName||r.name||'Regex '+(i+1),find:r.findRegex||r.find||'',replace:r.replaceString??r.replace??'',disabled:!!r.disabled,raw:r})):state.presets[state.presetIndex]?.__regexScripts||[]}
+function setActiveRegex(items){if(regexScope==='character'){if(!state.char){warn('請先匯入角色卡');return}state.char.regex_scripts=items.map(x=>({...x.raw,scriptName:x.name,findRegex:x.find,replaceString:x.replace,disabled:x.disabled}))}else{let p=state.presets[state.presetIndex];if(!p){warn('請先選擇預設');return}p.__regexScripts=items}}
+function refreshRegexScope(){document.getElementById('charRegexTab').classList.toggle('selected',regexScope==='character');document.getElementById('presetRegexTab').classList.toggle('selected',regexScope==='preset');document.getElementById('regexScopeInfo').textContent=regexScope==='character'?'目前角色卡：'+(state.char?.name||'未匯入'):'目前預設：'+(state.presets[state.presetIndex]?presetLabel(state.presets[state.presetIndex],state.presetIndex):'None');renderRegex()}
+document.getElementById('charRegexTab').onclick=()=>{regexScope='character';refreshRegexScope()};document.getElementById('presetRegexTab').onclick=()=>{regexScope='preset';refreshRegexScope()};
+function normalizeRegex(raw){let a=Array.isArray(raw)?raw:raw?.scripts||raw?.regexScripts||raw?.data||[];if(!Array.isArray(a))throw Error('找不到正則腳本陣列');return a.map((x,i)=>({id:x.id||i,name:x.scriptName||x.name||'Regex '+(i+1),find:x.findRegex||x.find||'',replace:x.replaceString??x.replace??'',placement:x.placement||[],disabled:!!x.disabled,raw:x}))}
+function renderRegex(){let host=$('regexScripts');host.replaceChildren();getActiveRegex().forEach((r,i)=>{let d=document.createElement('details'),sum=document.createElement('summary'),check=document.createElement('input');check.type='checkbox';check.checked=!r.disabled;check.onclick=e=>e.stopPropagation();check.onchange=()=>{r.disabled=!check.checked;if(regexScope==='character')r.raw.disabled=r.disabled;persist()};sum.append(check,document.createTextNode(' '+r.name));d.append(sum);for(let k of ['find','replace']){let t=document.createElement('textarea');t.rows=2;t.value=r[k];t.placeholder=k;t.onchange=()=>{r[k]=t.value;if(regexScope==='character')r.raw[k==='find'?'findRegex':'replaceString']=t.value;persist()};d.append(t)}host.append(d)})}
+$('regexFile').onchange=async e=>{try{setActiveRegex(normalizeRegex(JSON.parse(await e.target.files[0].text())));renderRegex();persist();warn('正則腳本已匯入供檢視；尚未完整實作 SillyTavern 正則作用範圍與執行流程，請勿視為已套用。')}catch(err){warn('正則匯入失敗：'+err.message)}};
+function selectedOrder(p){return p?.prompt_order?.[0]?.order||p?.prompt_order||[]}
+function loreMatch(entry,text){
+ if(!entry.enabled)return false;
+ if(entry.constant)return true;
+ const keys=entry.keys||[];if(!keys.length)return false;
+ const hay=entry.caseSensitive?text:text.toLowerCase();
+ const hit=k=>{const word=entry.caseSensitive?String(k):String(k).toLowerCase();if(!word)return false;try{if(entry.useRegex&&/^\/.+\/[gimsuy]*$/.test(word)){const m=word.match(/^\/(.*)\/([gimsuy]*)$/);return new RegExp(m[1],m[2]).test(text)}if(entry.matchWholeWords)return new RegExp('(^|[^\\p{L}\\p{N}_])'+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?=$|[^\\p{L}\\p{N}_])','u'+(entry.caseSensitive?'':'i')).test(text)}catch(_){}return hay.includes(word)};
+ if(!keys.some(hit))return false;
+ if(!entry.selective||!(entry.secondary||[]).length)return true;
+ const hits=entry.secondary.map(hit);
+ switch(Number(entry.selectiveLogic)||0){case 1:return hits.every(Boolean);case 2:return !hits.some(Boolean);case 3:return !hits.every(Boolean);default:return hits.some(Boolean)}
+}
+function resolveWorldbook(history){
+ const scanDefault=Math.max(1,Number($('scanDepth').value)||10);
+ const sorted=[];
+ for(const e of state.lore){
+  const n=e.scanDepth==null?scanDefault:Math.max(0,Number(e.scanDepth)||0);
+  const text=n?history.slice(-n).map(x=>x.content||'').join('\n'):'';
+  if(loreMatch(e,text))sorted.push(e);
+ }
+ return sorted;
+}
+function orderEntries(items){return [...items].sort((a,b)=>(Number(a.order)||0)-(Number(b.order)||0)||(Number(a.sourceIndex)||0)-(Number(b.sourceIndex)||0))}
+function promptBlocks(){
+ const p=state.presets[state.presetIndex];if(!p)return [];
+ const map=new Map((p.prompts||[]).map(x=>[x.identifier,x]));
+ const order=selectedOrder(p),used=new Set(),blocks=[];
+ for(const x of order){const id=typeof x==='string'?x:x.identifier;if(x.enabled===false||used.has(id))continue;used.add(id);const b=map.get(id);if(b&&b.content&&b.enabled!==false)blocks.push({id,content:b.content})}
+ for(const b of p.prompts||[]){if(!used.has(b.identifier)&&b.enabled!==false&&b.content)blocks.push({id:b.identifier,content:b.content})}
+ return blocks;
+}
+function buildPrompt(options={}){
+ if(!state.char)throw Error('請先匯入角色卡');
+ const history=state.messages.filter(m=>m.role==='user'||m.role==='assistant').map(m=>({role:m.role,content:String(m.content||'')}));
+ if(options.preview&&(!history.length||history.at(-1).role!=='user'))history.push({role:'user',content:''});
+ if(!history.length||history.at(-1).role!=='user')throw Error('請先輸入訊息');
+ const triggered=resolveWorldbook(history);
+ if(!options.preview)state.lastTriggered=triggered.map(x=>({name:x.name,id:x.id}));
+ const group=(position)=>orderEntries(triggered.filter(x=>Number(x.position)===position)).map(x=>x.content).filter(Boolean);
+ const before=group(0),after=group(1);
+ const c=state.char,p=state.presets[state.presetIndex];
+ const variables={char:c.name||'',user:$('userName').value||'User'};
+ const subst=t=>String(t||'').replace(/{{\s*(char|user)\s*}}/gi,(_,key)=>variables[key.toLowerCase()]);
+ const sections={worldInfoBefore:before,worldInfoAfter:after,charDescription:[c.description],charPersonality:[c.personality],scenario:[c.scenario],personaDescription:[],charExamples:[c.mes_example],main:[c.system_prompt],jailbreak:[c.post_history_instructions]};
+ const defaultOrder=['worldInfoBefore','charDescription','charPersonality','scenario','worldInfoAfter','charExamples'];
+ const blocks=promptBlocks();
+ const order=selectedOrder(p);
+ const ids=order.map(x=>typeof x==='string'?x:x.identifier).filter((id,i)=>order[i]?.enabled!==false);
+ const available=new Map(blocks.map(b=>[b.id,b.content]));
+ const pieces=[],done=new Set();
+ const emit=id=>{if(done.has(id))return;done.add(id);if(id==='chatHistory'||available.has(id))return;const values=sections[id]||[available.get(id)];for(const v of values||[])if(v&&String(v).trim())pieces.push(subst(v))};
+ if(ids.length){for(const id of ids){if(id==='chatHistory')continue;emit(id)}for(const id of defaultOrder)emit(id)}
+ else{for(const id of defaultOrder)emit(id)}
+ const preface=pieces.join('\n\n');
+ const messages=[];
+ if(preface)messages.push({role:'user',content:preface});
+ // Send only the three previous completed player turns, plus the current input.
+ // Worldbook activation above still scans the full conversation independently.
+ const previousUserIndices=[];
+ for(let i=0;i<history.length-1;i++)if(history[i].role==='user')previousUserIndices.push(i);
+ const first=previousUserIndices.length>=3?previousUserIndices.at(-3):previousUserIndices[0];
+ const recentHistory=first==null?[history.at(-1)]:history.slice(first);
+ for(const m of recentHistory)messages.push({...m});
+ // Insert depth-positioned entries relative to the actual chat messages, not the preface.
+ const buckets=new Map();
+ for(const e of triggered.filter(x=>Number(x.position)===4)){
+  const depth=Math.max(0,Math.floor(Number(e.depth)||0));
+  const target=Math.max(0,recentHistory.length-1-depth);
+  if(!buckets.has(target))buckets.set(target,[]);buckets.get(target).push(e);
+ }
+ const offset=preface?1:0;
+ for(const [idx,entries] of buckets){const content=orderEntries(entries).map(e=>subst(e.content)).filter(Boolean).join('\n\n');if(content)messages[idx+offset].content+='\n\n'+content}
+ // Custom Prompt Blocks are final instructions after the current input and depth-positioned lore.
+ // Keep worldbook activation and placement unchanged.
+ const trailingBlocks=blocks.map(b=>subst(b.content)).filter(v=>String(v).trim());
+ if(trailingBlocks.length)messages[messages.length-1].content+='\n\n'+trailingBlocks.join('\n\n');
+ if(!options.preview){state.lastPrompt=messages;renderLore()}return messages;
+}
+
+function renderLoreEntries(){
+ let host=$('loreEntries');if(!host)return;host.replaceChildren();
+ if(!state.lore.length){host.textContent='尚無世界書條目';return}
+ let legend=document.createElement('div');legend.className='loreLegend';
+ for(let [type,label] of [['always','藍色：常駐'],['keyword','綠色：關鍵字觸發'],['off','灰色：未啟用']]){
+  let item=document.createElement('span'),dot=document.createElement('i');dot.className='loreStatusDot '+type;
+  item.append(dot,document.createTextNode(label));legend.append(item)
+ }
+ host.append(legend);
+ state.lore.forEach((e,i)=>{
+  let type=!e.enabled?'off':e.constant?'always':'keyword';
+  let label=type==='always'?'常駐':type==='keyword'?'關鍵字':'未啟用';
+  let d=document.createElement('div');d.className='loreEntry';d.tabIndex=0;d.setAttribute('role','button');d.setAttribute('aria-label','檢視世界書：'+(e.name||`條目 ${i+1}`));
+  let summary=document.createElement('div');summary.className='loreEntrySummary';summary.style.cssText='display:flex;align-items:center;gap:9px';
+  let dot=document.createElement('span');dot.className='loreStatusDot '+type;
+  let name=document.createElement('span');name.className='loreEntryName';name.textContent=e.name||`條目 ${i+1}`;
+  let badge=document.createElement('span');badge.className='loreStatusText '+type;badge.textContent=label;
+  summary.append(dot,name,badge);d.append(summary);
+  d.onclick=()=>openLoreViewer(e,i);
+  d.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();openLoreViewer(e,i)}};
+  host.append(d)
+ })
+}
+
+function openLoreViewer(e,i){
+ const viewer=$('loreViewer');
+ $('loreViewerTitle').textContent=e.name||`條目 ${i+1}`;
+ $('loreViewerMeta').textContent=`狀態：${!e.enabled?'停用':e.constant?'🔵 常駐':'🟢 關鍵字觸發'}\n主要關鍵字：${(e.keys||[]).join('、')||'無'}\n次要關鍵字：${(e.secondary||[]).join('、')||'無'}\n插入位置：${e.position}　｜　優先順序：${e.order}`;
+ $('loreViewerBody').textContent=e.content||'（此條目沒有內容）';
+ viewer.hidden=false;
+ $('loreViewerBody').scrollTop=0;
+ $('loreViewerClose').focus();
+}
+function closeLoreViewer(){$('loreViewer').hidden=true}
+$('loreViewerClose').onclick=closeLoreViewer;
+$('loreViewer').addEventListener('click',e=>{if(e.target===$('loreViewer'))closeLoreViewer()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('loreViewer').hidden)closeLoreViewer()});
+function renderLore(){renderLoreEntries();$('activeLore').textContent=state.lastTriggered.length?state.lastTriggered.map(x=>x.name).join('、'):'無觸發'}
+function render(){updateTokenStats();let box=$('chat');box.replaceChildren();state.messages.forEach((m,i)=>{let d=document.createElement('div');d.className='msg '+m.role;let meta=document.createElement('div');meta.className='meta';meta.textContent=(m.role==='user'?$('userName').value:($('charName').value||'AI'))+' · '+(m.time?new Date(m.time).toLocaleString():'')+(m.versions?.length?` · ${m.versions.length+1} 個版本`:'');let body=document.createElement('div');showRenderedMessage(body,m);let tools=document.createElement('div');tools.className='messageTools';let holdTimer=null;const reveal=()=>{document.querySelectorAll('.messageTools.visible').forEach(x=>{if(x!==tools)x.classList.remove('visible')});tools.classList.add('visible')};d.addEventListener('contextmenu',e=>{if(e.target.closest('button,textarea,iframe'))return;e.preventDefault();reveal()});d.addEventListener('pointerdown',e=>{if(e.target.closest('button,textarea,iframe'))return;holdTimer=setTimeout(reveal,550)});for(const ev of ['pointerup','pointercancel','pointerleave','pointermove'])d.addEventListener(ev,()=>{clearTimeout(holdTimer)});let edit=document.createElement('button');edit.type='button';edit.textContent='編輯';edit.title='編輯這則訊息';edit.onclick=()=>{if(controller)return;let editor=document.createElement('textarea');editor.value=m.content;editor.rows=Math.max(4,Math.min(12,m.content.split('\n').length+2));editor.style.cssText='display:block;width:100%;min-width:0;min-height:140px;box-sizing:border-box;resize:vertical;position:relative;z-index:3';let save=document.createElement('button');save.textContent='儲存';let cancel=document.createElement('button');cancel.textContent='取消';let buttons=document.createElement('div');buttons.className='messageEditActions';buttons.append(save,cancel);body.replaceChildren(editor,buttons);tools.classList.remove('visible');editor.focus();cancel.onclick=()=>render();save.onclick=()=>{m.content=editor.value;m.edited=true;render();persist()}};let del=document.createElement('button');del.type='button';del.textContent='刪除';del.title='刪除這則訊息';del.onclick=()=>{if(controller)return;if(confirm('確定刪除這則訊息？')){state.messages.splice(i,1);render();persist()}};tools.append(edit,del);if(i===0&&m.greeting&&greetingOptions().length>1){let nav=document.createElement('div');nav.className='greetingNav';let prev=document.createElement('button'),next=document.createElement('button'),count=document.createElement('span');prev.textContent='‹';next.textContent='›';count.textContent=((m.greetingIndex||0)+1)+' / '+greetingOptions().length;prev.onclick=()=>switchGreeting(-1);next.onclick=()=>switchGreeting(1);nav.append(prev,count,next);body.append(nav)}d.append(meta,body,tools);box.append(d)});box.scrollTop=box.scrollHeight;let n=state.messages.filter(m=>m.role==='user').length;$('turns').textContent=n+' 輪';$('headerName').textContent=$('charName').value||'角色扮演測試台';$('history').textContent=state.messages.filter(x=>x.role==='user').map((x,i)=>`${i+1}. ${x.content.slice(0,55)}`).join('\n')||'尚無紀錄';renderLore()}
+
+function requestConfig(messages){let provider=$('provider').value,endpoint=$('endpoint').value.trim().replace(/\/$/,''),model=$('model').value.trim(),key=$('key').value;if(!model||!key)throw Error(provider==='vertex'?'請填寫 Model ID 與 OAuth Access Token':'請填寫 Model ID 與 API Key');if(provider==='vertex'&&!$('vertexProject').value.trim())throw Error('Vertex AI 請填寫 Google Cloud Project ID');if(provider==='compatible'&&!endpoint)throw Error('自訂 API 請填寫 Endpoint');if(provider==='openai')endpoint='https://api.openai.com/v1';if(provider==='gemini')endpoint='https://generativelanguage.googleapis.com/v1beta';if(provider==='anthropic')endpoint='https://api.anthropic.com/v1';let temp=Number($('temperature').value),top=Number($('topP').value),max=Number($('maxTokens').value),topK=Number($('topK').value);let headers={'Content-Type':'application/json'},url,body;if(provider==='anthropic'){url=endpoint.endsWith('/messages')?endpoint:endpoint+'/messages';headers['x-api-key']=key;headers['anthropic-version']='2023-06-01';let rest=messages.map(x=>({role:x.role==='assistant'?'assistant':'user',content:x.content}));if(!rest.length)rest.push({role:'user',content:'你好'});body={model,max_tokens:max,temperature:temp,top_p:top,messages:rest,stream:false}}else if(provider==='gemini'||provider==='vertex'){if(provider==='vertex'){const project=$('vertexProject').value.trim(),location=$('vertexLocation').value.trim()||'us-central1';const host=location==='global'?'aiplatform.googleapis.com':location+'-aiplatform.googleapis.com';url='https://'+host+'/v1/projects/'+encodeURIComponent(project)+'/locations/'+encodeURIComponent(location)+'/publishers/google/models/'+encodeURIComponent(model)+':generateContent';headers.Authorization='Bearer '+key}else{url=endpoint.includes(':generateContent')?endpoint:endpoint.replace(/\/models\/[^/]+$/,'')+'/models/'+encodeURIComponent(model)+':generateContent';headers['x-goog-api-key']=key;}let contents=[];for(const m of messages){const role=m.role==='assistant'?'model':'user';const last=contents[contents.length-1];if(last&&last.role===role)last.parts[0].text+='\n\n'+m.content;else contents.push({role,parts:[{text:m.content}]})}if(!contents.length)contents.push({role:'user',parts:[{text:'你好'}]});body={contents,generationConfig:{temperature:temp,topP:top,maxOutputTokens:max,...(topK>0?{topK}:{})}}}else{url=endpoint.endsWith('/chat/completions')?endpoint:endpoint+'/chat/completions';headers.Authorization='Bearer '+key;body={model,messages:messages.map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.content})),temperature:temp,top_p:top,max_tokens:max,stream:true};if(topK>0)body.top_k=topK}return {url,headers,body,provider:provider==='compatible'?'openai':provider==='vertex'?'gemini':provider}}
+async function parseStream(resp,onToken,onMeta=()=>{}){
+ let reader=resp.body.getReader(),decoder=new TextDecoder(),buf='',full='';
+ function process(line){
+  line=line.trim();if(!line.startsWith('data:'))return false;
+  const payload=line.slice(5).trim();if(payload==='[DONE]')return true;
+  try{
+   const j=JSON.parse(payload),choice=j.choices?.[0],delta=choice?.delta||{};
+   if(j.id||j.usage||j.model||j.system_fingerprint||choice?.finish_reason)onMeta(j);
+   const raw=delta.content;
+   const chunk=typeof raw==='string'?raw:Array.isArray(raw)?raw.filter(x=>x?.type==='text').map(x=>x.text||'').join(''):'';
+   if(chunk){full+=chunk;onToken(full)}
+  }catch(e){}
+  return false;
+ }
+ while(true){
+  const {done,value}=await reader.read();
+  if(done){buf+=decoder.decode();break}
+  buf+=decoder.decode(value,{stream:true});
+  const lines=buf.split(/\r?\n/);buf=lines.pop();
+  for(const line of lines)if(process(line))return full;
+ }
+ if(buf.trim())process(buf);
+ return full;
+}
+async function fingerprint(value){let data=new TextEncoder().encode(typeof value==='string'?value:JSON.stringify(value));if(crypto?.subtle){let hash=await crypto.subtle.digest('SHA-256',data);return Array.from(new Uint8Array(hash)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,20)}let h=2166136261;for(let b of data)h=Math.imul(h^b,16777619);return (h>>>0).toString(16)}
+// Budget applies to the assembled request, regardless of API provider.
+// Never mutate the stored conversation. BPE is used when available; otherwise
+// UTF-8 byte count is a deliberately conservative fallback for multilingual text.
+function promptTokenEstimate(messages){
+ let total=3;
+ for(const m of messages){
+  const value=String(m.content||'');
+  const exact=countTokens(value);
+  total+=(exact==null?new TextEncoder().encode(value).length:exact)+8;
+ }
+ return total;
+}
+function promptWithinInputBudget(){return {messages:buildPrompt()}}
+async function generate({regenerate=false,test=false}={}){if(controller)return;let previous=null;if(regenerate&&!test&&state.messages.at(-1)?.role==='assistant'){previous=state.messages.pop()}let messages;try{messages=test?[{role:'user',content:'Reply with OK.'}]:promptWithinInputBudget().messages}catch(e){if(previous)state.messages.push(previous);$('chatStatus').textContent='已停止：'+e.message;return}
+ // Tokenizer display is independent from the actual request. Never send an empty payload.
+ const validMessages=Array.isArray(messages)&&messages.filter(m=>['system','user','assistant'].includes(m?.role)&&typeof m.content==='string'&&m.content.trim().length>0);
+ if(!validMessages?.length){if(previous)state.messages.push(previous);$('chatStatus').textContent='已停止：實際 Prompt 為空。請到「紀錄 → 實際送出的 Prompt」檢查預設與聊天歷史。';return;}
+ messages=validMessages;
+ let cfg;try{cfg=requestConfig(messages)}catch(e){if(previous)state.messages.push(previous);$('chatStatus').textContent=e.message;return}// Keep request diagnostics visible even if the provider rejects it.
+ const requestParts=cfg.body.messages||cfg.body.contents||[];
+ const inputChars=JSON.stringify(requestParts).length+(cfg.body.system?String(cfg.body.system).length:0)+(cfg.body.systemInstruction?JSON.stringify(cfg.body.systemInstruction).length:0);
+ if(!inputChars){if(previous)state.messages.push(previous);$('chatStatus').textContent='已停止：API 請求沒有文字內容。';return;}
+ controller=new AbortController();$('send').hidden=true;$('regen').hidden=true;$('stop').hidden=false;let assistant=null;if(!test){assistant={role:'assistant',content:'',time:new Date().toISOString(),versions:[]};state.messages.push(assistant);render()}try{state.lastRequest={url:cfg.url,body:cfg.body};$('promptView').textContent=JSON.stringify(cfg.body,null,2);$('requestView').textContent=JSON.stringify(state.lastRequest,null,2);$('chatStatus').textContent='生成中…';let r=await fetch(cfg.url,{method:'POST',headers:cfg.headers,body:JSON.stringify(cfg.body),signal:controller.signal});if(!r.ok)throw Error(`HTTP ${r.status}: ${(await r.text()).slice(0,600)}`);let output='',apiMeta={},started=performance.now();const responseHeaderId=r.headers.get('x-request-id')||r.headers.get('x-requestid')||null;if(cfg.provider==='openai'&&r.headers.get('content-type')?.includes('text/event-stream'))output=await parseStream(r,s=>{if(assistant){assistant.content=s;render()}},j=>{apiMeta={...apiMeta,id:j.id||apiMeta.id,model:j.model||apiMeta.model,usage:j.usage||apiMeta.usage,system_fingerprint:j.system_fingerprint||apiMeta.system_fingerprint,finish_reason:j.choices?.[0]?.finish_reason||apiMeta.finish_reason}});else{let j=await r.json();apiMeta={id:j.id||null,model:j.model||null,usage:j.usage||j.usageMetadata||null,system_fingerprint:j.system_fingerprint||null,finish_reason:j.choices?.[0]?.finish_reason||null};output=cfg.provider==='anthropic'?j.content?.map(x=>x.text||'').join(''):cfg.provider==='gemini'?j.candidates?.[0]?.content?.parts?.map(x=>x.text||'').join(''):(typeof j.choices?.[0]?.message?.content==='string'?j.choices[0].message.content:Array.isArray(j.choices?.[0]?.message?.content)?j.choices[0].message.content.filter(x=>x?.type==='text').map(x=>x.text||'').join(''):'')}if(!test&&!output.trim()){
+  const usage=apiMeta.usage||{};
+  const reason=apiMeta.finish_reason||'未提供';
+  const completion=usage.completion_tokens??usage.output_tokens??'未提供';
+  const reasoning=usage.completion_tokens_details?.reasoning_tokens??usage.output_tokens_details?.reasoning_tokens??null;
+  const explanation=`API 已回應，但沒有可顯示的正文。finish_reason：${reason}；輸出 Tokens：${completion}${reasoning!=null?'；推理 Tokens：'+reasoning:''}。請檢查 Max Output Tokens、模型回傳格式與「紀錄 → 上次 API 請求」。`;
+  if(assistant){const idx=state.messages.indexOf(assistant);if(idx>=0)state.messages.splice(idx,1);if(previous)state.messages.push(previous);render()}
+  $('chatStatus').textContent=explanation;
+  state.lastApiUsage=apiMeta.usage||null;updateTokenStats();
+  persist();return;
+ }
+ if(!test){state.lastApiUsage=apiMeta.usage||null;updateTokenStats();let diag={time:new Date().toISOString(),regenerate,model:cfg.body.model||$('model').value,requestHash:await fingerprint(cfg.body),responseHash:await fingerprint(output),responseChars:output.length,finishReason:apiMeta.finish_reason||null,responseId:apiMeta.id||null,requestId:responseHeaderId,serverModel:apiMeta.model||null,usage:apiMeta.usage||null,systemFingerprint:apiMeta.system_fingerprint||null,elapsedMs:Math.round(performance.now()-started)};state.lastDiagnostics=Array.isArray(state.lastDiagnostics)?state.lastDiagnostics:[];let earlier=state.lastDiagnostics.at(-1);diag.sameRequestAsPrevious=!!earlier&&earlier.requestHash===diag.requestHash;diag.sameResponseAsPrevious=!!earlier&&earlier.responseHash===diag.responseHash;state.lastDiagnostics.push(diag);state.lastDiagnostics=state.lastDiagnostics.slice(-10);$('regenDiagnostics').textContent=JSON.stringify(state.lastDiagnostics,null,2);if(diag.sameResponseAsPrevious&&diag.sameRequestAsPrevious)$('chatStatus').textContent='注意：本次請求與回覆都和前次完全相同；請查看診斷紀錄。'}if(test){$('apiStatus').textContent='連線成功：'+output.slice(0,30)}else{assistant.content=output||assistant.content;assistant.model=$('model').value;assistant.parameters=getSettings();assistant.triggeredLore=structuredClone(state.lastTriggered);if(!$('chatStatus').textContent.startsWith('注意：'))$('chatStatus').textContent='完成';persist();render()}}catch(e){let msg=e.name==='AbortError'?'已停止':`失敗：${e.message}（可能為 CORS、限流、模型參數或上下文限制）`;if(test)$('apiStatus').textContent=msg;else{$('chatStatus').textContent=msg;if(assistant&&!assistant.content){state.messages.pop();if(previous)state.messages.push(previous);render()}}}finally{controller=null;$('stop').hidden=true;updateComposerAction()}}
+function download(name,content,type){let url=URL.createObjectURL(new Blob([content],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function csv(v){return '"'+String(v??'').replace(/"/g,'""')+'"'}
+// Bridge SillyTavern's /setentryfield, /send and /trigger from card iframe.
+window.addEventListener('message',e=>{
+  if(e.data?.type!=='rp-card-slash')return;
+  const frame=[...document.querySelectorAll('#chat iframe')].find(f=>f.contentWindow===e.source);
+  if(!frame||!state.char||controller)return;
+  const commands=String(e.data.commands||'').split(/\s+\|\s+/);
+  let submitted='',loreChanged=false;
+  for(const cmd of commands){
+    if(cmd.startsWith('/setentryfield ')){
+      const match=cmd.match(/^\/setentryfield\s+file=(.*?)\s+uid=(\d+)\s+field=(\w+)\s+([\s\S]*)$/);
+      if(!match)continue;
+      const [,book,uid,field,value]=match;
+      if(String(uid)==='54')continue;
+      if(book!==state.char.name)continue;
+      let entry=state.lore.find(x=>String(x.id)===uid);
+      if(!entry){entry={id:Number(uid),name:'角色初始化資料',content:'',keys:[],secondary:[],constant:false,enabled:true,position:0,depth:0,order:100,probability:100,selective:false,caseSensitive:false,matchWholeWords:false};state.lore.push(entry)}
+      if(field==='content'){entry.content=value;loreChanged=true}
+      else if(field==='constant'){entry.constant=value.trim()==='true';loreChanged=true}
+      else if(field==='position'){entry.position=Number(value)||0;loreChanged=true}
+      else if(field==='role'){entry.role=Number(value)||0;loreChanged=true}
+    }else if(cmd.startsWith('/send '))submitted=cmd.slice(6);
+  }
+  if(loreChanged){$('loreInfo').textContent=`已載入 ${state.lore.length} 條世界書`;persist()}
+  if(submitted){$('input').value=submitted;$('send').click()}
+});
+function updateComposerAction(){if(controller)return;let hasText=!!$('input').value.trim();$('send').hidden=!hasText;$('regen').hidden=hasText||!state.messages.some(x=>x.role==='user');$('stop').hidden=true;if(!hasText&&!state.messages.some(x=>x.role==='user'))$('send').hidden=false} $('input').addEventListener('input',updateComposerAction);$('send').onclick=()=>{let s=$('input').value.trim();if(!s||controller)return;state.messages.push({role:'user',content:s,time:new Date().toISOString()});$('input').value='';updateComposerAction();render();persist();generate()};$('input').onkeydown=e=>{if(e.key==='Enter'&&e.ctrlKey){e.preventDefault();$('send').click()}};$('stop').onclick=()=>controller?.abort();$('regen').onclick=()=>{if(state.messages.some(x=>x.role==='user'))generate({regenerate:true})};$('modelList').onchange=()=>{if($('modelList').value){$('model').value=$('modelList').value;$('model').dispatchEvent(new Event('change',{bubbles:true}))}};
+$('fetchModels').onclick=async()=>{const status=$('apiStatus'),btn=$('fetchModels');let provider=$('provider').value,key=$('key').value.trim(),base=$('endpoint').value.trim().replace(/\/$/,'');if(!key){status.textContent=provider==='vertex'?'請先輸入 OAuth Access Token':'請先輸入 API Key';return}if(provider==='compatible'&&!base){status.textContent='請先輸入 Endpoint';return}let url,headers={};if(provider==='openai'){url='https://api.openai.com/v1/models';headers.Authorization='Bearer '+key}else if(provider==='gemini'||provider==='vertex'){url='https://generativelanguage.googleapis.com/v1beta/models?key='+encodeURIComponent(key)}else if(provider==='anthropic'){url='https://api.anthropic.com/v1/models';headers['x-api-key']=key;headers['anthropic-version']='2023-06-01';headers['anthropic-dangerous-direct-browser-access']='true'}else{url=base.replace(/\/(chat\/completions|models)\/?$/,'')+'/models';headers.Authorization='Bearer '+key}btn.disabled=true;status.textContent='正在取得模型列表…';try{const r=await fetch(url,{headers});const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.error?.message||data.message||'HTTP '+r.status);let models=(data.data||data.models||[]).map(x=>typeof x==='string'?x:(x.id||x.name||'')).map(x=>provider==='gemini'?x.replace(/^models\//,''):x).filter(Boolean);if(provider==='gemini')models=models.filter((_,i)=>{let item=(data.models||[])[i];return !item?.supportedGenerationMethods||item.supportedGenerationMethods.includes('generateContent')});models=[...new Set(models)].sort((a,b)=>a.localeCompare(b));if(!models.length)throw Error('API 未回傳可用模型');const sel=$('modelList'),current=$('model').value;sel.replaceChildren(new Option('請選擇模型',''),...models.map(m=>new Option(m,m)));if(models.includes(current))sel.value=current;status.textContent='取得 '+models.length+' 個模型，請從列表選擇'}catch(e){status.textContent='無法取得模型：'+e.message+'（也可手動輸入 Model ID）'}finally{btn.disabled=false}};
+$('test').onclick=()=>generate({test:true});$('preview').onclick=()=>{try{$('previewView').textContent=JSON.stringify(buildPrompt(),null,2)}catch(e){$('previewView').textContent=e.message}};
+$('charFile').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let raw=f.name.toLowerCase().endsWith('.png')?pngData(await f.arrayBuffer()):JSON.parse(await f.text());setChar(raw);applyGreeting();if(f.name.toLowerCase().endsWith('.png')){if(avatarUrl)URL.revokeObjectURL(avatarUrl);avatarUrl=URL.createObjectURL(f);$('avatar').src=avatarUrl}else{$('avatar').removeAttribute('src')}}catch(err){warn('角色卡解析失敗：'+err.message)}};$('loreFile').onchange=async e=>{try{let raw=JSON.parse(await e.target.files[0].text());state.lore=normalizeLore(raw);$('loreInfo').textContent=`已載入 ${state.lore.length} 條世界書`;persist();updateTokenStats()}catch(err){warn('世界書匯入失敗：'+err.message)}};$('presetFile').onchange=async e=>{try{loadPreset(JSON.parse(await e.target.files[0].text()),e.target.files[0].name)}catch(err){warn('預設匯入失敗：'+err.message)}};$('presetAutoParse').onchange=e=>{let p=state.presets[state.presetIndex];if(p){p.__autoParse=e.target.checked;$('autoParseFields').hidden=!e.target.checked;persist()}};for(let [field,key] of [['autoParsePrefix','__autoParsePrefix'],['autoParseSuffix','__autoParseSuffix']])$(field).oninput=e=>{let p=state.presets[state.presetIndex];if(p){p[key]=e.target.value;persist()}};$('presetSelect').onchange=e=>{state.presetIndex=Number(e.target.value);showPreset();syncParameterSliders()};$('applyGreeting').onclick=()=>{if(state.messages.length&&!confirm('確認開始新對話？目前聊天紀錄將被清空。'))return;applyGreeting()};$('cancelCharacter').onclick=()=> $('characterPanel').classList.add('hidden');$('exportJson').onclick=()=>download('roleplay-chat.json',JSON.stringify({format:'roleplay-test-v1',exportedAt:new Date().toISOString(),messages:state.messages,character:state.char,lore:state.lore,presets:state.presets,settings:{...getSettings(),apiKey:undefined}},null,2),'application/json');$('exportCsv').onclick=()=>{let rows=[['role','content','time','model','turn','triggered_lore','temperature','top_p','max_tokens','versions']];let turn=0;for(let m of state.messages){if(m.role==='user')turn++;rows.push([m.role,m.content,m.time,m.model||'',turn,(m.triggeredLore||[]).map(x=>x.name).join(';'),m.parameters?.temperature||'',m.parameters?.topP||'',m.parameters?.maxTokens||'',JSON.stringify(m.versions||[])])}download('roleplay-chat.csv','\ufeff'+rows.map(r=>r.map(csv).join(',')).join('\r\n'),'text/csv;charset=utf-8')};$('importChat').onchange=async e=>{try{let j=JSON.parse(await e.target.files[0].text());if(!Array.isArray(j.messages))throw Error('沒有 messages 陣列');state.messages=j.messages;state.char=j.character||state.char;state.lore=withoutUserpanel(j.lore||state.lore);state.presets=j.presets||state.presets;if(state.char){$('charName').value=state.char.name}render();persist()}catch(err){warn('紀錄匯入失敗：'+err.message)}};
+function syncApiProvider(){let provider=$('provider').value,custom=provider==='compatible',vertex=provider==='vertex';$('endpointWrap').hidden=!custom;$('endpoint').required=custom;$('vertexFields').hidden=!vertex;$('keyLabel').textContent=vertex?'Google Cloud OAuth Access Token（僅本次分頁）':'API Key（僅本次分頁）';$('fetchModels').disabled=vertex;$('fetchModels').title=vertex?'Vertex AI 請手動輸入模型 ID':''}
+function syncParameterSliders(){document.querySelectorAll('.parameterSlider').forEach(slider=>{let number=$(slider.dataset.target);let v=Number(number.value);if(Number.isFinite(v)){if(v>Number(slider.max))slider.max=String(Math.ceil(v));slider.value=String(v)}})}document.querySelectorAll('.parameterSlider').forEach(slider=>{let number=$(slider.dataset.target);slider.addEventListener('input',()=>{number.value=slider.value;number.dispatchEvent(new Event('change',{bubbles:true}))});number.addEventListener('input',syncParameterSliders);number.addEventListener('change',syncParameterSliders)});$('provider').addEventListener('change',syncApiProvider);for(let id of ['provider','endpoint','vertexProject','vertexLocation','model','temperature','topP','topK','maxTokens','maxInputTokens','scanDepth','recursive','userName','charName','systemPrompt'])$(id).addEventListener('change',()=>{render();persist()});try{let saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved){state.messages=saved.messages||[];state.char=saved.char;state.lore=withoutUserpanel(saved.lore||[]);state.presets=saved.presets||[];state.regexScripts=saved.regexScripts||[];renderRegex();state.presetIndex=saved.presetIndex??-1;const hadPresets=state.presets.length>0;ensureBuiltInDefault();if(!hadPresets&&state.presetIndex===-1)state.presetIndex=0;applySettings(saved.settings);if(saved.settings?.provider==='openai'&&saved.settings?.endpoint&&saved.settings.endpoint!=='https://api.openai.com/v1')$('provider').value='compatible';$('userName').value=saved.userName||'User';$('systemPrompt').value=saved.systemPrompt||'';if(state.char){$('charName').value=state.char.name}showPreset()}}catch(e){warn('本機紀錄讀取失敗：'+e.message)}syncApiProvider();refreshRegexScope();render();
+$('importCharacterBtn').onclick=()=>{ $('charFile').value='';$('charFile').click() };$('closeCharacter').onclick=()=> $('characterPanel').classList.add('hidden');tab('main');updateComposerAction();</script></body></html>
